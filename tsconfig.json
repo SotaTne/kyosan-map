@@ -1,0 +1,4 @@
+{
+  "extends": "@kyosan-map/typescript-config/base.json"
+}
+
