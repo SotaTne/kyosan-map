@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@kyosan-map/ui"],
-  experimental:{
-    useCache:true,
-  }
+  /* config options here */
+  transpilePackages: ["@kyosan-map/ui", "@kyosan-map/out-camera"],
+  experimental: {
+    useCache: true,
+  },
 };
 
 export default nextConfig;
