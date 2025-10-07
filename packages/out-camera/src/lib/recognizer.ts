@@ -1,9 +1,10 @@
 "use client";
 
+import type { Mat } from "@techstark/opencv-js";
+// @ts-ignore
 import { ONNXPaddleOCR } from "onnx-ocr-js";
 import * as ort from "onnxruntime-web";
 import type { CV2, OCRResult, TextSystem } from "../types/type";
-import type { Mat } from "@techstark/opencv-js";
 
 /**
  * ONNXRuntime + OpenCV.js を使った PaddleOCR ラッパークラス
@@ -165,8 +166,6 @@ export class Recognizer {
 
     const ocr = new ONNXPaddleOCR({ use_angle_cls: true });
     ort.env.wasm.wasmPaths = String(onnx_wasm_path);
-    // 何秒かかっているか計測する
-    console.log("start onnxruntime-web");
     const textSystem = await ocr.init({
       cv,
       ort,
@@ -175,10 +174,6 @@ export class Recognizer {
       rec_model_array_buffer: recModel,
       rec_char_dict: charset,
     });
-    console.log("end onnxruntime-web");
-
-    console.timeEnd("OCR Init");
-    console.log("✅ OCR initialized successfully");
 
     return new Recognizer(ocr, cv, textSystem);
   }
@@ -189,8 +184,6 @@ export class Recognizer {
     if (!this.textSystem)
       throw new Error("Recognizer not initialized (textSystem missing)");
     if (!this.cv) throw new Error("Recognizer not initialized (cv missing)");
-
-    console.time("🧠 OCR Run");
 
     const cv = this.cv;
     const textSystem = this.textSystem;
@@ -229,8 +222,6 @@ export class Recognizer {
         true,
         true
       );
-      console.timeEnd("🧠 OCR Run");
-      console.log("📄 OCR Results:", results);
       return results;
     } catch (err) {
       console.error("❌ OCR run failed:", err);

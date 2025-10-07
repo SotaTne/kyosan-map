@@ -666,7 +666,7 @@ export function WebGLCanvasCamera({
 
       try {
         // どちらか通る方で
-        await track.applyConstraints({ advanced: [{ zoom: z } as MediaTrackConstraintSet] } as MediaTrackConstraints);
+        await track.applyConstraints({ advanced: [{ zoom: z } as MediaTrackConstraintSet] });
       } catch {
         try {
           await track.applyConstraints({ zoom: z } as MediaTrackConstraints);

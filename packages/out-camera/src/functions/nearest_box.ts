@@ -1,4 +1,4 @@
-import type { Point, OCRResult, Box } from "../types/type";
+import type { Box, OCRResult, Point } from "../types/type";
 import { boxDistance } from "./box_distance";
 
 /** OCR結果からボックス情報を事前計算 */

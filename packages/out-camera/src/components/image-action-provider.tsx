@@ -1,6 +1,5 @@
 "use client";
 
-import { ReactNode } from "react";
 import { ClientImageProvider } from "../_components/client-provider";
 // @ts-ignore
 import { OpenCvProvider } from "opencv-react";

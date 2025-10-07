@@ -219,8 +219,8 @@ importers:
   packages/out-camera:
     dependencies:
       onnx-ocr-js:
-        specifier: ^0.0.5
-        version: 0.0.5
+        specifier: ^0.0.6
+        version: 0.0.6
       onnxruntime-web:
         specifier: ^1.23.0
         version: 1.23.0
@@ -2250,8 +2250,8 @@ packages:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
 
-  onnx-ocr-js@0.0.5:
-    resolution: {integrity: sha512-J1S31fnk4aef9F+fByUL/3nQ+USyoQUH87v98bDhA+ViG6zWggfzfoGnSFfU2JVtBpRfgQtmnbFt0ycVS93imw==}
+  onnx-ocr-js@0.0.6:
+    resolution: {integrity: sha512-EqEU9EXMpzjAbfnowf6v7tpkxVXBNcNKwOaCvKFVs6lQrpX3coKNDzfqdvFK218es9xesrYWOsvXm9hrQiZguA==}
 
   onnxruntime-common@1.23.0:
     resolution: {integrity: sha512-Auz8S9D7vpF8ok7fzTobvD1XdQDftRf/S7pHmjeCr3Xdymi4z1C7zx4vnT6nnUjbpelZdGwda0BmWHCCTMKUTg==}
@@ -5020,7 +5020,7 @@ snapshots:
     dependencies:
       mimic-fn: 2.1.0
 
-  onnx-ocr-js@0.0.5:
+  onnx-ocr-js@0.0.6:
     dependencies:
       blakejs: 1.2.1
       js-angusj-clipper: 1.3.1

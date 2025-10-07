@@ -1,4 +1,4 @@
-import type { Point, Box, OCRResult } from "../types/type";
+import type { Box, OCRResult, Point } from "../types/type";
 
 /**
  * 点と矩形（4頂点ボックス）の符号付き最短距離を計算
@@ -87,12 +87,8 @@ export function findNearestOCRBox(
   for (const [box, [text, confidence]] of ocrResults) {
     const dist = boxDistance(tapPoint, box);
 
-    // 内側または線上 → 即採用（最も近いとみなす）
-    if (dist <= 0) {
-      return { box, text, confidence, distance: dist };
-    }
-
     // より近いものを更新
+    // 小さければ小さいほど良い
     if (!nearest || dist < nearest.distance) {
       nearest = { box, text, confidence, distance: dist };
     }

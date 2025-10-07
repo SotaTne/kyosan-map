@@ -19,7 +19,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "onnx-ocr-js": "^0.0.5",
+    "onnx-ocr-js": "^0.0.6",
     "onnxruntime-web": "^1.23.0",
     "opencv-react": "^0.0.6"
   },

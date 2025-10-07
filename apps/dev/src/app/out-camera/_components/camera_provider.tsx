@@ -1,17 +1,17 @@
 "use client";
 
-import React, {
+import {
   useCallback,
   useEffect,
   useMemo,
-  useState,
   useRef,
+  useState,
 } from "react";
 
-import { WebGLCanvasCamera } from "@kyosan-map/out-camera/components/scalable-video";
-import { useImageRecognizer } from "@kyosan-map/out-camera/hooks/recognizer-hook";
-import { findNearestOCRBox } from "@kyosan-map/out-camera/functions/box_distance";
 import { ImageActionProvider } from "@kyosan-map/out-camera/components/image-action-provider";
+import { WebGLCanvasCamera } from "@kyosan-map/out-camera/components/scalable-video";
+import { findNearestOCRBox } from "@kyosan-map/out-camera/functions/box_distance";
+import { useImageRecognizer } from "@kyosan-map/out-camera/hooks/recognizer-hook";
 import type { OCRResult, Point } from "@kyosan-map/out-camera/types/type";
 
 /**
@@ -29,7 +29,6 @@ function CameraInner() {
 
   /** 🚀 カメラ開始 */
   const startCamera = useCallback(async () => {
-    console.log("[startCamera] called");
     if (isStarting || isRunning) return;
 
     try {
@@ -43,12 +42,10 @@ function CameraInner() {
         audio: false,
       });
 
-      console.log("[startCamera] stream obtained:", s);
       streamRef.current = s;
       setStream(s);
       setIsRunning(true);
     } catch (err) {
-      console.error("[startCamera] failed:", err);
       alert("カメラの起動に失敗しました。権限を確認してください。");
     } finally {
       setIsStarting(false);
@@ -57,7 +54,6 @@ function CameraInner() {
 
   /** 🛑 カメラ停止 */
   const stopCamera = useCallback(() => {
-    console.log("[stopCamera] called");
     const s = streamRef.current;
     if (s) {
       s.getTracks().forEach((t) => t.stop());
@@ -69,9 +65,7 @@ function CameraInner() {
 
   /** 🚫 unmount時もストリームを維持（iOS Safari対策） */
   useEffect(() => {
-    console.log("[CameraInner] mount");
     return () => {
-      console.log("[CameraInner] unmount (stream preserved)");
       // 🔥 stream は停止しない
     };
   }, []);
@@ -79,10 +73,8 @@ function CameraInner() {
   /** 👆 タップ時のOCR処理 */
   const handleTap = useCallback(
     async (payload: { x: number; y: number; imageData: ImageData }) => {
-      console.log("[handleTap] payload:", payload);
 
       if (!recognizer) {
-        console.error("[handleTap] recognizer not ready");
         alert(
           "OCR がまだ初期化されていません。少し待ってから再試行してください。"
         );
@@ -90,11 +82,9 @@ function CameraInner() {
       }
 
       try {
-        console.log("[handleTap] OCR start");
         const resultsRaw = await recognizer.run(payload.imageData);
 
         const results: OCRResult[] = resultsRaw[0]! as unknown as OCRResult[];
-        console.log("[handleTap] OCR results:", results);
         setLastResult(results);
 
         if (!results || results.length === 0) {
@@ -104,7 +94,6 @@ function CameraInner() {
 
         const tap: Point = [payload.x, payload.y];
         const nearest = findNearestOCRBox(tap, results);
-        console.log("[handleTap] nearest:", nearest);
 
         if (!nearest) {
           alert("適切な領域が見つかりませんでした。");
@@ -198,7 +187,6 @@ function CameraInner() {
  * ==========================================
  */
 export function CameraProvider() {
-  console.log("[CameraProvider] mount");
 
   const modelPaths = useMemo(
     () => ({
