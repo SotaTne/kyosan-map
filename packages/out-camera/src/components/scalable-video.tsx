@@ -666,11 +666,10 @@ export function WebGLCanvasCamera({
 
       try {
         // どちらか通る方で
-        // @ts-ignore
-        await track.applyConstraints({ advanced: [{ zoom: z as any }] });
+        await track.applyConstraints({ advanced: [{ zoom: z } as MediaTrackConstraintSet] } as MediaTrackConstraints);
       } catch {
         try {
-          await track.applyConstraints({ zoom: z as any } as any);
+          await track.applyConstraints({ zoom: z } as MediaTrackConstraints);
         } catch (e2) {
           console.warn(
             "[WebGLCanvasCamera] applyConstraints(zoom) failed:",
@@ -785,11 +784,11 @@ export function WebGLCanvasCamera({
     el.addEventListener("pointercancel", pointerCancel);
 
     return () => {
-      el.removeEventListener("wheel", wheelHandler as any);
-      el.removeEventListener("pointerdown", pointerDown as any);
-      el.removeEventListener("pointermove", pointerMove as any);
-      el.removeEventListener("pointerup", pointerUp as any);
-      el.removeEventListener("pointercancel", pointerCancel as any);
+      el.removeEventListener("wheel", wheelHandler);
+      el.removeEventListener("pointerdown", pointerDown);
+      el.removeEventListener("pointermove", pointerMove);
+      el.removeEventListener("pointerup", pointerUp);
+      el.removeEventListener("pointercancel", pointerCancel);
     };
   }, [applyZoomScheduled]);
   // ====== ここまで: ズーム適用ロジック ======
