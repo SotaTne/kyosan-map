@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.4.1",
+  "packageManager": "pnpm@10.17.1",
   "devDependencies": {
     "@kyosan-map/typescript-config": "workspace:*",
     "@techstark/opencv-js": "4.11.0-release.1",
@@ -19,14 +19,16 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "ismobilejs": "^1.1.1",
-    "opencv-react": "^0.0.6",
-    "tesseract.js": "^6.0.1"
+    "onnx-ocr-js": "^0.0.6",
+    "onnxruntime-web": "^1.23.0",
+    "opencv-react": "^0.0.6"
   },
   "exports": {
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
-    "./context/*": "./src/context/*.ts"
+    "./context/*": "./src/context/*.ts",
+    "./functions/*": "./src/functions/*.ts",
+    "./types/*": "./src/types/*.ts"
   }
 }

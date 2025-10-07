@@ -1,16 +1,25 @@
 {
   "extends": "@kyosan-map/typescript-config/nextjs.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@kyosan-map/ui/*": ["../../packages/ui/src/*"]
+    },
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "moduleResolution": "bundler",
+    "allowArbitraryExtensions": true
+  
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "next.config.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }
