@@ -13,6 +13,8 @@ type CameraLayout = {
   sh: number;
 };
 
+type ReloadPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+
 type Props = {
   stream: MediaStream;
   width?: number | string;
@@ -20,6 +22,9 @@ type Props = {
   className?: string;
   overscan?: number;
   onTap?: (data: TapPayload) => void;
+  reloadPos?: ReloadPosition;
+  reloadIcon?: React.ReactNode;
+  onReload?: () => void;
 };
 
 const VS_300 = `#version 300 es
@@ -44,6 +49,21 @@ void main() {
   outColor = texture(u_texture, v_uv);
 }`;
 
+const DefaultReloadIcon = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M10.75 1v3h-3M1.25 11v-3h3M1 5.75a5 5 0 0 1 9.4-2.15M11 6.25a5 5 0 0 1-9.4 2.1" />
+  </svg>
+);
+
 export function WebGLCanvasCamera({
   stream,
   width = "100%",
@@ -51,10 +71,14 @@ export function WebGLCanvasCamera({
   className = "",
   overscan = 1.0,
   onTap,
+  reloadPos,
+  reloadIcon,
+  onReload,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const reloadButtonRef = useRef<HTMLButtonElement>(null);
 
   const glRef = useRef<WebGL2RenderingContext | null>(null);
   const progRef = useRef<WebGLProgram | null>(null);
@@ -67,6 +91,8 @@ export function WebGLCanvasCamera({
   const captureSizeRef = useRef<{ w: number; h: number } | null>(null);
 
   const [meta, setMeta] = useState<{ vw: number; vh: number } | null>(null);
+  const [isReloading, setIsReloading] = useState(false);
+
   const layoutRef = useRef<CameraLayout | null>(null);
   const lastUVRef = useRef<{
     u0: number;
@@ -80,7 +106,6 @@ export function WebGLCanvasCamera({
   const isRenderingRef = useRef(true);
   const contextLostRef = useRef(false);
 
-  // ====== ここから: ストリームAPIズーム状態 ======
   const zoomStateRef = useRef<{
     supported: boolean;
     min: number;
@@ -93,9 +118,123 @@ export function WebGLCanvasCamera({
   const zoomApplyScheduledRef = useRef(false);
   const pinchActiveRef = useRef(false);
   const skipTapUntilRef = useRef(0);
-  // ====== ここまで ======
+  const snapshotInProgressRef = useRef(false);
 
-  // Compile & link helpers
+  const TAP_MAX_DIST = 5;
+  const TAP_MAX_MS = 500;
+  const tapCandidateRef = useRef<{
+    id: number;
+    x: number;
+    y: number;
+    t: number;
+  } | null>(null);
+
+  const getReloadButtonStyle = (): React.CSSProperties => {
+    const baseStyle: React.CSSProperties = {
+      position: "absolute",
+      zIndex: 10,
+      padding: "8px",
+      background: "rgba(0, 0, 0, 0.4)", // ★ 0.6 → 0.4 に変更
+      border: "none",
+      borderRadius: "50%",
+      color: "white",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "all 0.2s ease",
+      backdropFilter: "blur(4px)",
+      pointerEvents: "auto",
+    };
+
+    switch (reloadPos) {
+      case "top-left":
+        return { ...baseStyle, top: "12px", left: "12px" };
+      case "top-right":
+        return { ...baseStyle, top: "12px", right: "12px" };
+      case "bottom-left":
+        return { ...baseStyle, bottom: "12px", left: "12px" };
+      case "bottom-right":
+        return { ...baseStyle, bottom: "12px", right: "12px" };
+      default:
+        return { ...baseStyle, display: "none" };
+    }
+  };
+
+  // ★ ポイントがリロードボタン内かどうかをチェック
+  const isPointInReloadButton = useCallback((clientX: number, clientY: number): boolean => {
+    if (!reloadButtonRef.current) return false;
+    const rect = reloadButtonRef.current.getBoundingClientRect();
+    return (
+      clientX >= rect.left &&
+      clientX <= rect.right &&
+      clientY >= rect.top &&
+      clientY <= rect.bottom
+    );
+  }, []);
+
+  const handleReload = useCallback(
+    async (e: React.MouseEvent | React.PointerEvent) => {
+      // ★ イベントの伝播を停止
+      e.stopPropagation();
+      e.preventDefault();
+
+      if (isReloading) return;
+
+      setIsReloading(true);
+
+      try {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const tracks = stream.getVideoTracks();
+        tracks.forEach((track) => {
+          track.stop();
+        });
+
+        video.pause();
+        video.srcObject = null;
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        const newStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        });
+
+        video.srcObject = newStream;
+        video.muted = true;
+        video.playsInline = true;
+        await video.play();
+
+        if (video.videoWidth && video.videoHeight) {
+          setMeta({ vw: video.videoWidth, vh: video.videoHeight });
+        }
+
+        const gl = glRef.current;
+        if (gl) {
+          if (texRef.current) {
+            gl.deleteTexture(texRef.current);
+            texRef.current = null;
+          }
+          allocTexRef.current = null;
+        }
+
+        if (onReload) {
+          onReload();
+        }
+      } catch (error) {
+        console.error("[WebGLCanvasCamera] Reload failed:", error);
+      } finally {
+        setIsReloading(false);
+      }
+    },
+    [stream, onReload, isReloading]
+  );
+
   const compileShader = (
     gl: WebGL2RenderingContext,
     type: number,
@@ -133,7 +272,6 @@ export function WebGLCanvasCamera({
     return prog;
   };
 
-  // Layout
   const calcLayout = useCallback(
     (
       vw: number,
@@ -169,7 +307,6 @@ export function WebGLCanvasCamera({
     []
   );
 
-  // Update UV
   const updateUV = useCallback(
     (gl: WebGL2RenderingContext, L: CameraLayout, vw: number, vh: number) => {
       if (!uUVRectRef.current) return;
@@ -196,7 +333,6 @@ export function WebGLCanvasCamera({
     []
   );
 
-  // WebGL2 init
   const initGL2 = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) throw new Error("Canvas not found");
@@ -207,7 +343,7 @@ export function WebGLCanvasCamera({
       depth: false,
       stencil: false,
       powerPreference: "high-performance",
-      preserveDrawingBuffer: false,
+      preserveDrawingBuffer: true,
     }) as WebGL2RenderingContext | null;
 
     if (!gl) throw new Error("WebGL2 not supported");
@@ -247,7 +383,6 @@ export function WebGLCanvasCamera({
     gl.bindVertexArray(null);
   }, []);
 
-  // Context loss
   useEffect(() => {
     const cvs = canvasRef.current;
     if (!cvs) return;
@@ -288,7 +423,6 @@ export function WebGLCanvasCamera({
     };
   }, [initGL2]);
 
-  // Mount/cleanup
   useEffect(() => {
     initGL2();
     return () => {
@@ -310,7 +444,6 @@ export function WebGLCanvasCamera({
     };
   }, [initGL2]);
 
-  // MediaStream + ズーム機能サポート検出
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -330,7 +463,6 @@ export function WebGLCanvasCamera({
     const tracks = stream.getVideoTracks();
     const track = tracks[0];
 
-    // ズーム可否＆範囲
     if (track && typeof (track as any).getCapabilities === "function") {
       try {
         const caps: any = (track as any).getCapabilities();
@@ -374,7 +506,6 @@ export function WebGLCanvasCamera({
     };
   }, [stream]);
 
-  // Resize observer
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap || !meta) return;
@@ -416,7 +547,6 @@ export function WebGLCanvasCamera({
     return () => ro.disconnect();
   }, [meta, overscan, calcLayout, updateUV]);
 
-  // Initial layout
   useEffect(() => {
     const gl = glRef.current;
     if (!gl || !meta) return;
@@ -429,9 +559,9 @@ export function WebGLCanvasCamera({
     }
   }, [meta, overscan, calcLayout, updateUV]);
 
-  // Render
   const render = useCallback(() => {
     if (!isRenderingRef.current || contextLostRef.current) return;
+    if (snapshotInProgressRef.current) return;
 
     const gl = glRef.current!;
     const v = videoRef.current!;
@@ -504,7 +634,6 @@ export function WebGLCanvasCamera({
     gl.bindVertexArray(null);
   }, [meta]);
 
-  // Render loop
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -534,125 +663,53 @@ export function WebGLCanvasCamera({
     };
   }, [render]);
 
-  // Capture target (for snapshot)
-  const ensureCaptureTarget = (
-    gl: WebGL2RenderingContext,
-    w: number,
-    h: number
-  ) => {
-    const need =
-      !captureSizeRef.current ||
-      captureSizeRef.current.w !== w ||
-      captureSizeRef.current.h !== h;
-    if (!need) return;
-
-    if (captureTexRef.current) gl.deleteTexture(captureTexRef.current);
-    if (captureFBORef.current) gl.deleteFramebuffer(captureFBORef.current);
-
-    const tex = gl.createTexture()!;
-    captureTexRef.current = tex;
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    try {
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, w, h);
-    } catch {
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA8,
-        w,
-        h,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        null
-      );
-    }
-
-    const fbo = gl.createFramebuffer()!;
-    captureFBORef.current = fbo;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-    gl.framebufferTexture2D(
-      gl.FRAMEBUFFER,
-      gl.COLOR_ATTACHMENT0,
-      gl.TEXTURE_2D,
-      tex,
-      0
-    );
-    const ok =
-      gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    if (!ok) {
-      gl.deleteTexture(tex);
-      gl.deleteFramebuffer(fbo);
-      captureTexRef.current = null;
-      captureFBORef.current = null;
-      captureSizeRef.current = null;
-      throw new Error("Capture FBO incomplete");
-    }
-    captureSizeRef.current = { w, h };
-  };
-
-  // Snapshot → ImageData
   const makeSnapshotImageData = useCallback((): ImageData | null => {
+    const canvas = canvasRef.current;
     const gl = glRef.current;
-    const v = videoRef.current;
     const L = layoutRef.current;
-    const prog = progRef.current;
-    const vao = vaoRef.current;
-    const tex = texRef.current;
-    if (!gl || !v || !L || !prog || !vao || !tex) return null;
 
-    const w = Math.round(L.cw * L.dpr);
-    const h = Math.round(L.ch * L.dpr);
-    ensureCaptureTarget(gl, w, h);
-
-    const prevFB = gl.getParameter(
-      gl.FRAMEBUFFER_BINDING
-    ) as WebGLFramebuffer | null;
-    const prevVP = gl.getParameter(gl.VIEWPORT) as Int32Array;
-    const prevProg = gl.getParameter(gl.CURRENT_PROGRAM) as WebGLProgram | null;
-    const prevVAO = gl.getParameter(
-      gl.VERTEX_ARRAY_BINDING
-    ) as WebGLVertexArrayObject | null;
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, captureFBORef.current);
-    gl.viewport(0, 0, w, h);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.useProgram(prog);
-    gl.bindVertexArray(vao);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-    gl.bindVertexArray(null);
-
-    gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
-    const src = new Uint8Array(w * h * 4);
-    gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, src);
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, prevFB);
-    gl.viewport(prevVP[0]!, prevVP[1]!, prevVP[2]!, prevVP[3]!);
-    gl.useProgram(prevProg);
-    gl.bindVertexArray(prevVAO);
-
-    const row = w * 4;
-    const dst = new Uint8ClampedArray(src.length);
-    for (let y = 0; y < h; y++) {
-      const s = (h - 1 - y) * row;
-      const d = y * row;
-      dst.set(src.subarray(s, s + row), d);
+    if (!canvas || !gl || !L) return null;
+    if (gl.isContextLost()) {
+      console.warn("[Snapshot] WebGL context is lost");
+      return null;
     }
 
+    const w = canvas.width;
+    const h = canvas.height;
+
     try {
-      return new ImageData(dst, w, h, { colorSpace: "srgb" });
-    } catch {
-      return new ImageData(dst, w, h);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.flush();
+
+      gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
+      const src = new Uint8Array(w * h * 4);
+      gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, src);
+
+      const err = gl.getError();
+      if (err !== gl.NO_ERROR) {
+        console.error("[Snapshot] WebGL error:", err);
+        return null;
+      }
+
+      const row = w * 4;
+      const dst = new Uint8ClampedArray(src.length);
+      for (let y = 0; y < h; y++) {
+        const s = (h - 1 - y) * row;
+        const d = y * row;
+        dst.set(src.subarray(s, s + row), d);
+      }
+
+      try {
+        return new ImageData(dst, w, h, { colorSpace: "srgb" });
+      } catch {
+        return new ImageData(dst, w, h);
+      }
+    } catch (error) {
+      console.error("[Snapshot] Failed:", error);
+      return null;
     }
   }, []);
 
-  // ====== ここから: ズーム適用ロジック（ホイール＆ピンチ） ======
   const applyZoomScheduled = useCallback(() => {
     if (zoomApplyScheduledRef.current) return;
     zoomApplyScheduledRef.current = true;
@@ -665,8 +722,9 @@ export function WebGLCanvasCamera({
       if (!track) return;
 
       try {
-        // どちらか通る方で
-        await track.applyConstraints({ advanced: [{ zoom: z } as MediaTrackConstraintSet] });
+        await track.applyConstraints({
+          advanced: [{ zoom: z } as MediaTrackConstraintSet],
+        });
       } catch {
         try {
           await track.applyConstraints({ zoom: z } as MediaTrackConstraints);
@@ -675,7 +733,6 @@ export function WebGLCanvasCamera({
             "[WebGLCanvasCamera] applyConstraints(zoom) failed:",
             e2
           );
-          // 以後のズームは無効化
           zoomStateRef.current.supported = false;
           return;
         }
@@ -684,31 +741,43 @@ export function WebGLCanvasCamera({
     });
   }, [stream]);
 
-  // clamp helper
   const clamp = (v: number, mn: number, mx: number) =>
     Math.min(mx, Math.max(mn, v));
 
-  // ネイティブイベント: wheel + pointer(pinch)
+  const screenToCanvas = (clientX: number, clientY: number) => {
+    const root = wrapRef.current!;
+    const cvs = canvasRef.current!;
+    const rect = root.getBoundingClientRect();
+    const dpr = layoutRef.current?.dpr || window.devicePixelRatio || 1;
+    const W = cvs.width;
+    const H = cvs.height;
+    const cx = Math.max(
+      0,
+      Math.min(W - 1, Math.round((clientX - rect.left) * dpr))
+    );
+    const cy = Math.max(
+      0,
+      Math.min(H - 1, Math.round((clientY - rect.top) * dpr))
+    );
+    return { cx, cy };
+  };
+
   useEffect(() => {
-    const el = canvasRef.current;
+    const el = wrapRef.current;
     if (!el) return;
 
     const wheelHandler = (ev: WheelEvent) => {
       const zs = zoomStateRef.current;
       if (!zs.supported) return;
-
-      ev.preventDefault(); // ページスクロール抑止
-      // スケール係数（自然な感触に）
+      ev.preventDefault();
       const scale = Math.exp(-ev.deltaY * 0.002);
       const next = clamp(zs.value * scale, zs.min, zs.max);
       if (Math.abs(next - zs.value) < (zs.step || 0.001)) return;
       desiredZoomRef.current = next;
       applyZoomScheduled();
-      // ホイールはタップ扱いにしない
       skipTapUntilRef.current = performance.now() + 200;
     };
 
-    // ピンチ状態
     const touches = new Map<number, { x: number; y: number }>();
     let initialDist = 0;
     let initialZoom = 1;
@@ -719,11 +788,23 @@ export function WebGLCanvasCamera({
     ) => Math.hypot(a.x - b.x, a.y - b.y);
 
     const pointerDown = (ev: PointerEvent) => {
-      const zs = zoomStateRef.current;
-      if (ev.pointerType !== "touch") return; // ピンチのみ
-      if (!zs.supported) return;
+      // ★ リロードボタン内のクリックは無視
+      if (isPointInReloadButton(ev.clientX, ev.clientY)) {
+        return;
+      }
 
-      (ev.target as Element).setPointerCapture?.(ev.pointerId);
+      if (ev.isPrimary) {
+        tapCandidateRef.current = {
+          id: ev.pointerId,
+          x: ev.clientX,
+          y: ev.clientY,
+          t: performance.now(),
+        };
+      }
+
+      const zs = zoomStateRef.current;
+      if (ev.pointerType !== "touch" || !zs.supported) return;
+
       touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
 
       if (touches.size === 2) {
@@ -731,14 +812,14 @@ export function WebGLCanvasCamera({
         initialDist = distance(a!, b!);
         initialZoom = zs.value;
         pinchActiveRef.current = true;
+        tapCandidateRef.current = null;
         skipTapUntilRef.current = performance.now() + 400;
       }
     };
 
     const pointerMove = (ev: PointerEvent) => {
       const zs = zoomStateRef.current;
-      if (ev.pointerType !== "touch") return;
-      if (!zs.supported) return;
+      if (ev.pointerType !== "touch" || !zs.supported) return;
       if (!touches.has(ev.pointerId)) return;
 
       touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
@@ -758,30 +839,98 @@ export function WebGLCanvasCamera({
 
     const endPinchIfNeeded = () => {
       if (touches.size < 2) {
+        if (pinchActiveRef.current) {
+          skipTapUntilRef.current = performance.now() + 250;
+        }
         pinchActiveRef.current = false;
         initialDist = 0;
-        skipTapUntilRef.current = performance.now() + 250;
+      }
+    };
+
+    const cleanupPointer = (ev: PointerEvent, reason: string) => {
+      if (ev.pointerType === "touch") {
+        touches.delete(ev.pointerId);
+        endPinchIfNeeded();
+      }
+      if (
+        (reason === "up" || reason === "cancel") &&
+        tapCandidateRef.current?.id === ev.pointerId
+      ) {
+        tapCandidateRef.current = null;
       }
     };
 
     const pointerUp = (ev: PointerEvent) => {
+      // ★ リロードボタン内のクリックは無視
+      if (isPointInReloadButton(ev.clientX, ev.clientY)) {
+        cleanupPointer(ev, "up");
+        return;
+      }
+
+      const cand = tapCandidateRef.current;
+      cleanupPointer(ev, "up");
+
+      if (!onTap || !layoutRef.current) return;
+      if (pinchActiveRef.current) return;
+      if (performance.now() < skipTapUntilRef.current) return;
+
+      if (cand && cand.id === ev.pointerId) {
+        const dt = performance.now() - cand.t;
+        const dx = Math.abs(ev.clientX - cand.x);
+        const dy = Math.abs(ev.clientY - cand.y);
+        const isTap = dx < TAP_MAX_DIST && dy < TAP_MAX_DIST && dt < TAP_MAX_MS;
+
+        if (isTap) {
+          const { cx, cy } = screenToCanvas(ev.clientX, ev.clientY);
+
+          snapshotInProgressRef.current = true;
+
+          requestAnimationFrame(() => {
+            const imageData = makeSnapshotImageData();
+            snapshotInProgressRef.current = false;
+
+            if (imageData) {
+              requestAnimationFrame(() => {
+                onTap({ x: cx, y: cy, imageData });
+              });
+            }
+          });
+        }
+      }
+    };
+
+    const pointerCancel = (ev: PointerEvent) => cleanupPointer(ev, "cancel");
+    const pointerOut = (ev: PointerEvent) => {
       if (ev.pointerType === "touch") {
         touches.delete(ev.pointerId);
         endPinchIfNeeded();
       }
     };
-    const pointerCancel = (ev: PointerEvent) => {
+    const pointerLeave = (ev: PointerEvent) => {
       if (ev.pointerType === "touch") {
         touches.delete(ev.pointerId);
         endPinchIfNeeded();
       }
     };
+
+    const prevent = (e: Event) => e.preventDefault();
 
     el.addEventListener("wheel", wheelHandler, { passive: false });
     el.addEventListener("pointerdown", pointerDown, { passive: false });
     el.addEventListener("pointermove", pointerMove, { passive: false });
     el.addEventListener("pointerup", pointerUp);
     el.addEventListener("pointercancel", pointerCancel);
+    el.addEventListener("pointerout", pointerOut);
+    el.addEventListener("pointerleave", pointerLeave);
+    el.addEventListener("gesturestart", prevent as any, {
+      passive: false,
+    } as any);
+    el.addEventListener("gesturechange", prevent as any, {
+      passive: false,
+    } as any);
+    el.addEventListener("gestureend", prevent as any, {
+      passive: false,
+    } as any);
 
     return () => {
       el.removeEventListener("wheel", wheelHandler);
@@ -789,47 +938,32 @@ export function WebGLCanvasCamera({
       el.removeEventListener("pointermove", pointerMove);
       el.removeEventListener("pointerup", pointerUp);
       el.removeEventListener("pointercancel", pointerCancel);
+      el.removeEventListener("pointerout", pointerOut);
+      el.removeEventListener("pointerleave", pointerLeave);
+      el.removeEventListener("gesturestart", prevent as any);
+      el.removeEventListener("gesturechange", prevent as any);
+      el.removeEventListener("gestureend", prevent as any);
     };
-  }, [applyZoomScheduled]);
-  // ====== ここまで: ズーム適用ロジック ======
+  }, [applyZoomScheduled, onTap, makeSnapshotImageData, isPointInReloadButton]);
 
-  // Tap handler（ピンチ直後の誤タップ抑止）
-  const onPointerUp: React.PointerEventHandler<HTMLCanvasElement> = useCallback(
-    (e) => {
-      if (!onTap || !layoutRef.current) return;
-      if (performance.now() < skipTapUntilRef.current || pinchActiveRef.current)
-        return;
-
-      const cvs = canvasRef.current!;
-      const rect = cvs.getBoundingClientRect();
-      const L = layoutRef.current;
-      const xCss = e.clientX - rect.left;
-      const yCss = e.clientY - rect.top;
-      const cx = Math.max(0, Math.min(cvs.width - 1, Math.round(xCss * L.dpr)));
-      const cy = Math.max(
-        0,
-        Math.min(cvs.height - 1, Math.round(yCss * L.dpr))
-      );
-
-      const imageData = makeSnapshotImageData();
-      if (!imageData) return;
-      onTap({ x: cx, y: cy, imageData });
-    },
-    [onTap, makeSnapshotImageData]
-  );
+  const onPointerUp: React.PointerEventHandler<HTMLCanvasElement> =
+    useCallback(() => {
+      // not used (div に集約)
+    }, []);
 
   return (
     <div
       ref={wrapRef}
       className={className}
+      onContextMenu={(e) => e.preventDefault()}
       style={{
         width: typeof width === "number" ? `${width}px` : width,
         height: typeof height === "number" ? `${height}px` : height,
         position: "relative",
         overflow: "hidden",
         background: "black",
-        // ピンチを自前処理するため none 推奨
         touchAction: "none",
+        userSelect: "none",
       }}
     >
       <canvas
@@ -857,6 +991,59 @@ export function WebGLCanvasCamera({
           pointerEvents: "none",
         }}
       />
+      {/* リロードボタン */}
+      {reloadPos && (
+        <button
+          ref={reloadButtonRef}
+          onClick={handleReload}
+          onPointerDown={(e) => {
+            // ★ イベントの伝播を停止
+            e.stopPropagation();
+          }}
+          onPointerUp={(e) => {
+            // ★ イベントの伝播を停止
+            e.stopPropagation();
+          }}
+          disabled={isReloading}
+          style={{
+            ...getReloadButtonStyle(),
+            opacity: isReloading ? 0.5 : 1,
+            transform: isReloading ? "scale(0.95)" : "scale(1)",
+          }}
+          onMouseEnter={(e) => {
+            if (!isReloading) {
+              e.currentTarget.style.background = "rgba(0, 0, 0, 0.8)";
+              e.currentTarget.style.transform = "scale(1.1)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isReloading) {
+              e.currentTarget.style.background = "rgba(0, 0, 0, 0.6)";
+              e.currentTarget.style.transform = "scale(1)";
+            }
+          }}
+          aria-label="カメラをリロード"
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              animation: isReloading ? "spin 1s linear infinite" : "none",
+            }}
+          >
+            {reloadIcon || <DefaultReloadIcon />}
+          </div>
+        </button>
+      )}
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 }

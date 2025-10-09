@@ -4,10 +4,11 @@
   "private": true,
   "packageManager": "pnpm@10.17.1",
   "scripts": {
-    "dev": "next dev --turbopack --port 3001 --experimental-https",
+    "dev": "next dev --port 3001 --experimental-https",
     "build": "next build",
     "start": "next start --port 3001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "ngrok": "ngrok http 3001"
   },
   "dependencies": {
     "@kyosan-map/out-camera": "workspace:*",

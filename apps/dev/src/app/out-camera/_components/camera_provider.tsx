@@ -36,8 +36,8 @@ function CameraInner() {
       const s = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: 9999 },
+          height: { ideal: 9999 },
         },
         audio: false,
       });
@@ -158,6 +158,7 @@ function CameraInner() {
           height={500}
           onTap={handleTap}
           className="w-full h-auto"
+          reloadPos="top-right"
         />
       ) : (
         <div className="flex items-center justify-center h-48 text-gray-400">
