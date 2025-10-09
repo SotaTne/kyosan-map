@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dsznajder.es7-react-js-snippets",
+    "dbaeumer.vscode-eslint",
+    "xabikos.javascriptsnippets",
+    "christian-kohler.npm-intellisense",
+    "esbenp.prettier-vscode",
+    "rvest.vs-code-prettier-eslint",
+    "bradlc.vscode-tailwindcss",
+    "vitest.explorer",
+    "mosapride.zenkaku",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}
