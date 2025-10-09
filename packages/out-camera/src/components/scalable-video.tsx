@@ -121,7 +121,7 @@ export function WebGLCanvasCamera({
   const snapshotInProgressRef = useRef(false);
 
   const TAP_MAX_DIST = 5;
-  const TAP_MAX_MS = 500;
+  const TAP_MAX_MS = 250;
   const tapCandidateRef = useRef<{
     id: number;
     x: number;
