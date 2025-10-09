@@ -51,16 +51,16 @@ void main() {
 
 const DefaultReloadIcon = () => (
   <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="1"
+    strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M10.75 1v3h-3M1.25 11v-3h3M1 5.75a5 5 0 0 1 9.4-2.15M11 6.25a5 5 0 0 1-9.4 2.1" />
+    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
   </svg>
 );
 
@@ -175,7 +175,6 @@ export function WebGLCanvasCamera({
 
   const handleReload = useCallback(
     async (e: React.MouseEvent | React.PointerEvent) => {
-      // ★ イベントの伝播を停止
       e.stopPropagation();
       e.preventDefault();
 
@@ -188,32 +187,17 @@ export function WebGLCanvasCamera({
         if (!video) return;
 
         const tracks = stream.getVideoTracks();
-        tracks.forEach((track) => {
-          track.stop();
-        });
+        const track = tracks[0];
+        if (!track) return;
 
+        // ★ トラックを一時的に無効化
+        track.enabled = false;
         video.pause();
-        video.srcObject = null;
 
+        // 少し待機
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        const newStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "environment",
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-        });
-
-        video.srcObject = newStream;
-        video.muted = true;
-        video.playsInline = true;
-        await video.play();
-
-        if (video.videoWidth && video.videoHeight) {
-          setMeta({ vw: video.videoWidth, vh: video.videoHeight });
-        }
-
+        // ★ WebGL リソースをクリア
         const gl = glRef.current;
         if (gl) {
           if (texRef.current) {
@@ -221,6 +205,15 @@ export function WebGLCanvasCamera({
             texRef.current = null;
           }
           allocTexRef.current = null;
+        }
+
+        // ★ トラックを再度有効化
+        track.enabled = true;
+        await video.play();
+
+        // メタデータの更新
+        if (video.videoWidth && video.videoHeight) {
+          setMeta({ vw: video.videoWidth, vh: video.videoHeight });
         }
 
         if (onReload) {
