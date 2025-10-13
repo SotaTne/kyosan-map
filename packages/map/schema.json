@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "大学施設情報スキーマ定義",
+  "type": "object",
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "スキーマ参照（メタデータ用）"
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "施設ID (ユニーク)"
+          },
+          "name": {
+            "type": "string",
+            "description": "施設名"
+          },
+          "ocrName":{
+            "type": "string",
+            "description": "OCR検出用施設名",
+            "default": ""
+          },
+          "description": {
+            "type": "string",
+            "description": "施設説明",
+            "default": ""
+          },
+          "type": {
+            "type": "string",
+            "enum": ["building", "parking", "other"],
+            "description": "施設タイプ"
+          },
+          "tags":{
+            "type": "array",
+            "description": "施設タグ",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "image": {
+            "type": "string",
+            "description": "施設画像URL",
+            "default": ""
+          },
+          "lat": {
+            "type": "number",
+            "description": "緯度 (WGS84)"
+          },
+          "lng": {
+            "type": "number",
+            "description": "経度 (WGS84)"
+          }
+        },
+        "required": ["id", "name", "type", "lat", "lng"],
+        "additionalProperties": false
+      }
+    }
+  },
+
+  "required": ["data"],
+  "additionalProperties": false
+}
