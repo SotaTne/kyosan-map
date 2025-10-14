@@ -8,22 +8,27 @@
       "type": "string",
       "description": "スキーマ参照（メタデータ用）"
     },
+    "version": {
+      "type": "string",
+      "description": "データスキーマまたはデータセットのバージョン",
+      "default": "1.0.0"
+    },
     "data": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer",
+            "type": "string",
             "description": "施設ID (ユニーク)"
           },
           "name": {
             "type": "string",
             "description": "施設名"
           },
-          "ocrName":{
+          "ocrName": {
             "type": "string",
-            "description": "OCR検出用施設名",
+            "description": "OCR検出用施設名 これがないとOCR検出されない",
             "default": ""
           },
           "description": {
@@ -33,10 +38,10 @@
           },
           "type": {
             "type": "string",
-            "enum": ["building", "parking", "other"],
-            "description": "施設タイプ"
+            "enum": ["building", "tips", "shop", "food"],
+            "description": "種類"
           },
-          "tags":{
+          "tags": {
             "type": "array",
             "description": "施設タグ",
             "items": {
@@ -51,11 +56,15 @@
           },
           "lat": {
             "type": "number",
-            "description": "緯度 (WGS84)"
+            "description": "緯度 (WGS84)",
+            "minimum": -90,
+            "maximum": 90
           },
           "lng": {
             "type": "number",
-            "description": "経度 (WGS84)"
+            "description": "経度 (WGS84)",
+            "minimum": -180,
+            "maximum": 180
           }
         },
         "required": ["id", "name", "type", "lat", "lng"],

@@ -1,0 +1,28 @@
+export interface Facility {
+  /** 施設ID (ユニーク) */
+  id: string;
+
+  /** 施設名 */
+  name: string;
+
+  /** OCR検出用施設名（これがないとOCR検出されない） */
+  ocrName?: string;
+
+  /** 施設説明 */
+  description?: string;
+
+  /** 種類 */
+  type: "building" | "tips" | "shop" | "food";
+
+  /** 施設タグ */
+  tags?: string[];
+
+  /** 施設画像URL */
+  image?: string;
+
+  /** 緯度 (WGS84) */
+  lat: number;
+
+  /** 経度 (WGS84) */
+  lng: number;
+}
