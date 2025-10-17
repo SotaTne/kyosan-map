@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `item_name_unique` ON `item` (`name`);

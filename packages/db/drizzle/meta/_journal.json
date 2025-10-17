@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1760604320431,
+      "tag": "0000_dapper_talkback",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1760607814036,
+      "tag": "0001_cuddly_luminals",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1760607894292,
+      "tag": "0002_dashing_sally_floyd",
+      "breakpoints": true
+    }
+  ]
+}

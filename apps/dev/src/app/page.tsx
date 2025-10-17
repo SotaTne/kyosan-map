@@ -9,6 +9,9 @@ export default function Page() {
       <Link href="/out-camera-config">
         Go to Out Camera Config
       </Link>
+      <Link href="/db">
+        Go to DB
+      </Link>
     </div>
   )
 }

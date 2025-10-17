@@ -1,21 +1,28 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": [".env", "packages/db/.env"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "cache": false,
+      "env": ["TURSO_DATABASE_URL", "TURSO_AUTH_TOKEN"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
     },
     "lint": {
       "dependsOn": ["^lint"]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["^check-types"],
+      "env": ["TURSO_DATABASE_URL", "TURSO_AUTH_TOKEN"],
+      "inputs": [".env*"]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["TURSO_DATABASE_URL", "TURSO_AUTH_TOKEN"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
     }
   }
 }
