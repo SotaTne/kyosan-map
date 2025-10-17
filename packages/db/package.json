@@ -1,0 +1,40 @@
+{
+  "name": "@kyosan-map/db",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx --env-file=.env ./src/db/seed.ts",
+    "lint": "eslint ."
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
+  "devDependencies": {
+    "@kyosan-map/typescript-config": "workspace:*",
+    "@kyosan-map/eslint-config": "workspace:*",
+    "@types/node": "^24.7.2",
+    "drizzle-kit": "^0.31.5",
+    "tsx": "^4.20.6",
+    "eslint": "^9"
+  },
+  "dependencies": {
+    "@auth/drizzle-adapter": "^1.11.0",
+    "@libsql/client": "^0.15.15",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.6",
+    "drizzle-seed": "^0.3.1",
+    "next-auth": "5.0.0-beta.29"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./db/schema": "./src/db/schema.ts"
+  }
+}

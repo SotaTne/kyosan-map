@@ -21,7 +21,6 @@
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
     "eslint": "^9",
-    "@eslint/eslintrc": "^3",
     "@kyosan-map/typescript-config": "workspace:*"
   }
 }

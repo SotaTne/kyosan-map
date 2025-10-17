@@ -5,7 +5,8 @@
     "allowArbitraryExtensions": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@kyosan-map/ui/*": ["../../packages/ui/src/*"]
+      "@kyosan-map/ui/*": ["../../packages/ui/src/*"],
+      "@kyosan-map/db/*": ["../../packages/db/src/*"]
     },
     "plugins": [
       {

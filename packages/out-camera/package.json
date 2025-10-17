@@ -13,6 +13,7 @@
   "devDependencies": {
     "@kyosan-map/typescript-config": "workspace:*",
     "@techstark/opencv-js": "4.11.0-release.1",
+    "@kyosan-map/eslint-config": "workspace:*",
     "@types/node": "^24.2.1",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
