@@ -7,10 +7,10 @@ import Map, {
   GeolocateControl,
   ImmutableLike,
   MapProps,
-  Marker,
-  StyleSpecification,
+  StyleSpecification
 } from "react-map-gl/maplibre";
 import data from "../../building.json" with { type: "json" };
+import { DEFAULT_CENTER, KYOTO_BOUNDS } from "../config";
 
 /* 初期スタイル */
 const DefaultStyle: StyleSpecification = {
@@ -28,31 +28,6 @@ const DefaultStyle: StyleSpecification = {
   ],
 };
 
-const KYOTO_BOUNDS: [number, number, number, number] = [
-  135.7541779, 35.0662063, 135.7608528, 35.0728644,
-];
-
-const CENTER: [number, number] = [135.7585, 35.0705];
-
-/* ---- 追加: ピン用の簡単なSVG ---- */
-function Pin({ size = 24, color = "#e11d48" }: { size?: number; color?: string }) {
-  const ICON =
-    "M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,4.5,2,10c0,2,0.6,3.9,1.6,5.4c0,0.1,0.1,0.2,0.2,0.3 c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9 C20.1,15.8,20.2,15.8,20.2,15.7z";
-  return (
-    <svg height={size} viewBox="0 0 24 24" style={{ cursor: "pointer", fill: color, stroke: "none" }}>
-      <path d={ICON} />
-    </svg>
-  );
-}
-
-/* ---- 追加: ピンを出す対象（例） ---- */
-type Facility = { id: string; name: string; lat: number; lng: number; type?: "building"|"food"|"shop"|"tips" };
-const FACILITIES: Facility[] = [
-  { id: "b001", name: "RIT本館", lat: 35.0705, lng: 135.7585, type: "building" },
-  { id: "f001", name: "カフェ",   lat: 35.0709, lng: 135.7593, type: "food" },
-  { id: "s001", name: "ストア",   lat: 35.0712, lng: 135.7589, type: "shop" },
-];
-
 export function DeliverMap({
   children,
   style = { width: "100vw", height: "100vh" },
@@ -68,12 +43,10 @@ export function DeliverMap({
     () => ({
       style,
       mapStyle,
-      center: CENTER,
       maxBounds: KYOTO_BOUNDS,
       maxZoom: 20,
       minZoom: 16,
-      defaultZoom: 19,
-    }),
+    } satisfies MapProps),
     [style, mapStyle]
   );
   console.log(data);
@@ -94,7 +67,7 @@ export function DeliverMap({
     });
 
     map.once("styledata", () => {
-      map.setCenter(CENTER);
+      map.setCenter(DEFAULT_CENTER);
     });
   }, []);
 
@@ -124,20 +97,6 @@ export function DeliverMap({
           );
         }}
       />
-
-      {/* ---- 追加: ピン描画（Marker） ---- */}
-      {FACILITIES.map((f) => (
-        <Marker key={f.id} longitude={f.lng} latitude={f.lat} anchor="bottom">
-          <Pin
-            color={
-              f.type === "building" ? "#2563eb" : // blue-600
-              f.type === "food"     ? "#ef4444" : // red-500
-              f.type === "shop"     ? "#f59e0b" : // amber-500
-                                      "#8b5cf6"   // violet-500 (tips/その他)
-            }
-          />
-        </Marker>
-      ))}
 
       {children}
     </Map>
