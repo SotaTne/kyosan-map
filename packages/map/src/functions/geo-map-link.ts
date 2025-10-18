@@ -1,6 +1,6 @@
 "use client";
 
-import isMobile from 'ismobilejs';
+import isMobile from "ismobilejs";
 
 export function getMapLink(lat: number, lng: number, label?: string): string {
   const coords = `${lat},${lng}`;

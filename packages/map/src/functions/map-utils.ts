@@ -37,7 +37,7 @@ export function getDegreesPerPixel(
   const c = center ?? map.getCenter();
   const p = map.project([c.lng, c.lat]);
   const right = map.unproject(new Point(p.x + 1, p.y) as MlPoint); // 右へ1px
-  const up = map.unproject(new Point(p.x, p.y - 1) as MlPoint);     // 上へ1px
+  const up = map.unproject(new Point(p.x, p.y - 1) as MlPoint); // 上へ1px
   return {
     lngPerPixel: right.lng - c.lng,
     latPerPixel: up.lat - c.lat,
@@ -49,7 +49,10 @@ export function getDegreesPerPixel(
  * - モバイル：下モーダル → y: -h/2（上へ）
  * - デスクトップ：左サイドバー → x: +w/2（右へ）
  */
-export function cameraOffsetPxFromState(state: State): { x: number; y: number } {
+export function cameraOffsetPxFromState(state: State): {
+  x: number;
+  y: number;
+} {
   if (!state.uiVisible) return { x: 0, y: 0 };
 
   if (state.deviceMode === "mobile") {
@@ -117,9 +120,10 @@ export function calculateSortedPins(
 ): string[] {
   const adjustedCenter = selectAdjustedCenter(map, state);
 
-  const candidates = (opts?.useViewportBounds
-    ? allPins.filter((p) => inBounds(p, state.viewport.bounds))
-    : allPins
+  const candidates = (
+    opts?.useViewportBounds
+      ? allPins.filter((p) => inBounds(p, state.viewport.bounds))
+      : allPins
   ).filter((p) => passFilter(p, state.filter));
 
   const withDist = candidates.map((p) => ({
@@ -127,6 +131,8 @@ export function calculateSortedPins(
     d: distanceMetersFloor({ lat: p.lat, lng: p.lng }, adjustedCenter),
   }));
 
-  withDist.sort((a, b) => (a.d - b.d) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  withDist.sort(
+    (a, b) => a.d - b.d || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+  );
   return withDist.map((x) => x.id);
 }

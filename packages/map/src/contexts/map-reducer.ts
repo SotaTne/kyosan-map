@@ -47,6 +47,7 @@ export const defaultState:State = {
   filter: defaultFilterState,
   focusedPinId: null,
   viewport: defaultViewPointState,
+  geolocatePos: null,
 };
 
 export type Action = {
@@ -64,7 +65,12 @@ export type Action = {
 } | {
   type: "SET_VIEWPORT";
   payload: ViewPointState;
-} | { type: "TOGGLE_UI_VISIBLE" };
+} | {
+  type: "TOGGLE_UI_VISIBLE" 
+} | {
+  type: "SET_GEOLOCATE_POS";
+  payload: { lat: number; lng: number } | null;
+};
 
 export const mapReducer:ImmerReducer<State,Action> = (draft, action) => {
   switch (action.type) {
@@ -92,6 +98,9 @@ export const mapReducer:ImmerReducer<State,Action> = (draft, action) => {
       return;
     case "TOGGLE_UI_VISIBLE":
       draft.uiVisible = !draft.uiVisible;
+      return;
+    case "SET_GEOLOCATE_POS":
+      draft.geolocatePos = action.payload;
       return;
   }
 } 

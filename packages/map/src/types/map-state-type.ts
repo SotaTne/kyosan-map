@@ -44,6 +44,8 @@ export interface State {
   /** ビューポート（0.5秒ごとに更新） */
   viewport: ViewPointState
 
+  geolocatePos: { lat: number; lng: number } | null;
+
   //cameraOffsetとsortedPinsはuseMemoで計算するContextから提供する値とする
 }
 
