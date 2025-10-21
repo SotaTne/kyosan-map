@@ -1,18 +1,9 @@
 "use client";
 
+import { MapPinProps, PinCategory } from "@kyosan-map/map/types/map-type";
 import { cn } from "@kyosan-map/ui/lib/utils";
 import { Building2, Coffee, Lightbulb, ShoppingBag } from "lucide-react";
 import { memo } from "react";
-
-export type PinCategory = "building" | "shop" | "food" | "tips";
-
-type MapPinProps = {
-  category: PinCategory;
-  title: string;
-  active?: boolean;
-  size?: number;
-  activeScale?: number;
-};
 
 /* =========================================================
  * 🎨 カテゴリ別スタイル（Google Maps風カラー）

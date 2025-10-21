@@ -27,11 +27,12 @@ export interface Facility {
   lng: number;
 }
 
-export type MapPinProps = {
-  /** 通常サイズ(px) */
-  size?: number;
-  /** active時のサイズ倍率（デフォルト: 1.1） */
-  activeScale?: number;
+export type PinCategory = "building" | "shop" | "food" | "tips";
 
-  className?: string;
+export type MapPinProps = {
+  category: PinCategory;
+  title: string;
+  active?: boolean;
+  size?: number;
+  activeScale?: number;
 };
