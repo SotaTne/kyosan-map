@@ -45,7 +45,7 @@ export function PinsDeliver() {
         </div>
       );
     });
-  }, [idPinMap, selectedFacilityId, sortedPinIds]);
+  }, [dispatch, idPinMap, selectedFacilityId, sortedPinIds]);
 
   return <>{pins}</>;
 }
