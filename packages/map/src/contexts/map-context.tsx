@@ -9,7 +9,10 @@ import {
   distanceMetersFloor,
   selectAdjustedCenter,
 } from "../functions/map-utils";
-import { MapContextType } from "../types/map-state-type";
+import {
+  MapContextType,
+  PinsDistanceOfPointType,
+} from "../types/map-state-type";
 import { Facility } from "../types/map-type";
 import { defaultState, mapReducer } from "./map-reducer";
 
@@ -34,7 +37,7 @@ export function MapContextProvider({
     return selectAdjustedCenter(llMap, state);
   }, [llMap, state]);
 
-  const idToPin = useMemo<ReadonlyMap<string, Omit<Facility, "id">>>(() => {
+  const idPinMap = useMemo<ReadonlyMap<string, Omit<Facility, "id">>>(() => {
     const m = new Map<string, Omit<Facility, "id">>();
     for (const p of ALL_PINS) {
       const { id, ...rest } = p;
@@ -43,22 +46,23 @@ export function MapContextProvider({
     return m;
   }, []);
 
-  const pinsDistanceOfPoint = useCallback(
-    ({ lat, lng }: { lat: number; lng: number }) => {
+  const pinsDistanceOfPoint: PinsDistanceOfPointType = useCallback(
+    ((value: { lat: number; lng: number } | null) => {
+      if (!value) {
+        return sortedPinIds.map((id) => ({ id }));
+      }
       const arr = sortedPinIds.map((id) => {
-        const pinWithoutId = idToPin.get(id);
-        // まずあり得ない
-        if (!pinWithoutId) throw new Error("Pin not found for id: " + id);
+        const p = idPinMap.get(id)!; // 事前に存在が保証されるなら ! でOK
         const distanceMeter = distanceMetersFloor(
-          { lat: pinWithoutId.lat, lng: pinWithoutId.lng },
-          { lat, lng }
+          { lat: p.lat, lng: p.lng },
+          value
         );
-        return { id, distanceMeter, ...pinWithoutId };
+        return { id, distanceMeter };
       });
       arr.sort((a, b) => a.distanceMeter - b.distanceMeter);
       return arr;
-    },
-    [sortedPinIds, idToPin]
+    }) as PinsDistanceOfPointType,
+    [sortedPinIds, idPinMap]
   );
 
   const context: MapContextType = useMemo(() => {
@@ -68,8 +72,16 @@ export function MapContextProvider({
       sortedPinIds,
       adjustedCenter,
       pinsDistanceOfPoint,
+      idPinMap,
     } satisfies MapContextType;
-  }, [state, dispatch, sortedPinIds, adjustedCenter, pinsDistanceOfPoint]);
+  }, [
+    state,
+    dispatch,
+    sortedPinIds,
+    adjustedCenter,
+    pinsDistanceOfPoint,
+    idPinMap,
+  ]);
   return <MapContext value={context}>{children}</MapContext>;
 }
 

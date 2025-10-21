@@ -1,5 +1,6 @@
 import { Dispatch } from "react";
 import { Action } from "../contexts/map-reducer";
+import { Facility } from "./map-type";
 
 export interface FilterState {
   shop: boolean;
@@ -16,14 +17,13 @@ export interface ViewPointState {
     east: number;
     west: number;
   };
-  zoom?: number;  // あると便利（オプション）
-};
+  zoom?: number; // あると便利（オプション）
+}
 
 export interface UiDimensionsState {
   mobile: { modalHeight?: number };
   desktop: { sidebarWidth?: number };
-};
-
+}
 
 export interface State {
   /** デバイスモード */
@@ -36,23 +36,35 @@ export interface State {
   uiDimensions: UiDimensionsState;
 
   /** フィルタ状態 */
-  filter:FilterState
+  filter: FilterState;
 
   /** フォーカス中のPinのID */
   focusedPinId: string | null;
 
   /** ビューポート（0.5秒ごとに更新） */
-  viewport: ViewPointState
+  viewport: ViewPointState;
 
   geolocatePos: { lat: number; lng: number } | null;
 
   //cameraOffsetとsortedPinsはuseMemoで計算するContextから提供する値とする
 }
 
+// 型定義（オーバーロード）
+export type PinsDistanceOfPointType = {
+  (value: {
+    lat: number;
+    lng: number;
+  }): { id: string; distanceMeter: number }[];
+  (value: null): { id: string }[];
+};
+
+export type IdPinMapType = ReadonlyMap<string, Omit<Facility, "id">>;
+
 export type MapContextType = {
-  state:State;
-  dispatch:Dispatch<Action>;
-  sortedPinIds:string[];
-  adjustedCenter:{ lat: number; lng: number; };
-  pinsDistanceOfPoint: ({lat,lng}:{lat:number, lng:number})=>{ id:string; distanceMeter:number }[];
-}
+  state: State;
+  dispatch: Dispatch<Action>;
+  sortedPinIds: string[];
+  adjustedCenter: { lat: number; lng: number };
+  pinsDistanceOfPoint: PinsDistanceOfPointType;
+  idPinMap: IdPinMapType;
+};

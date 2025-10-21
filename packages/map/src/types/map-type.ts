@@ -26,3 +26,12 @@ export interface Facility {
   /** 経度 (WGS84) */
   lng: number;
 }
+
+export type MapPinProps = {
+  /** 通常サイズ(px) */
+  size?: number;
+  /** active時のサイズ倍率（デフォルト: 1.1） */
+  activeScale?: number;
+
+  className?: string;
+};

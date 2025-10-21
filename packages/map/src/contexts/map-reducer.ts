@@ -16,18 +16,18 @@ import { FilterState, State, ViewPointState } from "../types/map-state-type";
 // - デバイスがモバイルだった時にモーダルを開いた後の中心位置とMapの表示領域ないの中心位置の差分/PCだった時にサイドバーを開いた後の中心位置とMapの表示領域ないの中心位置の差分
 // - 中央からの距離順(モーダルやサイドバーが開かれているなら、その分を考慮した距離)でソートされたPinのidの配列
 
-const defaultFilterState:FilterState = {
+const defaultFilterState: FilterState = {
   shop: true,
   building: true,
   food: true,
   tips: true,
 };
 
-export const defaultViewPointState:ViewPointState = {
+export const defaultViewPointState: ViewPointState = {
   center: {
     lng: DEFAULT_CENTER[0],
     lat: DEFAULT_CENTER[1],
-  }, 
+  },
   bounds: {
     north: 0,
     south: 0,
@@ -37,7 +37,7 @@ export const defaultViewPointState:ViewPointState = {
   zoom: DEFAULT_ZOOM,
 };
 
-export const defaultState:State = {
+export const defaultState: State = {
   deviceMode: "desktop",
   uiVisible: true,
   uiDimensions: {
@@ -45,34 +45,43 @@ export const defaultState:State = {
     desktop: {},
   },
   filter: defaultFilterState,
-  focusedPinId: null,
+  focusedPinId: "tips_1",
   viewport: defaultViewPointState,
   geolocatePos: null,
 };
 
-export type Action = {
-  type: "SET_DEVICE_MODE";
-  payload: { device: "desktop", sidebarWidth: number } | { device: "mobile", modalHeight: number };
-} | {
-  type: "SET_UI_VISIBLE";
-  payload: boolean;
-} | {
-  type: "SET_FILTER";
-  payload: Partial<FilterState>;
-} | {
-  type: "SET_FOCUSED_PIN_ID";
-  payload: string | null;
-} | {
-  type: "SET_VIEWPORT";
-  payload: ViewPointState;
-} | {
-  type: "TOGGLE_UI_VISIBLE" 
-} | {
-  type: "SET_GEOLOCATE_POS";
-  payload: { lat: number; lng: number } | null;
-};
+export type Action =
+  | {
+      type: "SET_DEVICE_MODE";
+      payload:
+        | { device: "desktop"; sidebarWidth: number }
+        | { device: "mobile"; modalHeight: number };
+    }
+  | {
+      type: "SET_UI_VISIBLE";
+      payload: boolean;
+    }
+  | {
+      type: "SET_FILTER";
+      payload: Partial<FilterState>;
+    }
+  | {
+      type: "SET_FOCUSED_PIN_ID";
+      payload: string | null;
+    }
+  | {
+      type: "SET_VIEWPORT";
+      payload: ViewPointState;
+    }
+  | {
+      type: "TOGGLE_UI_VISIBLE";
+    }
+  | {
+      type: "SET_GEOLOCATE_POS";
+      payload: { lat: number; lng: number } | null;
+    };
 
-export const mapReducer:ImmerReducer<State,Action> = (draft, action) => {
+export const mapReducer: ImmerReducer<State, Action> = (draft, action) => {
   switch (action.type) {
     case "SET_DEVICE_MODE":
       draft.deviceMode = action.payload.device;
@@ -88,7 +97,7 @@ export const mapReducer:ImmerReducer<State,Action> = (draft, action) => {
       draft.uiVisible = action.payload;
       return;
     case "SET_FILTER":
-      draft.filter = { ...action.payload ,...draft.filter};
+      draft.filter = { ...action.payload, ...draft.filter };
       return;
     case "SET_FOCUSED_PIN_ID":
       draft.focusedPinId = action.payload;
@@ -103,4 +112,4 @@ export const mapReducer:ImmerReducer<State,Action> = (draft, action) => {
       draft.geolocatePos = action.payload;
       return;
   }
-} 
+};
