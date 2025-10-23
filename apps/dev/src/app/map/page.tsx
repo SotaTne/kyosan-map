@@ -1,5 +1,5 @@
-import { DeliverMap } from "@kyosan-map/map/components/map"
+import { DeliverMap } from "@kyosan-map/map/components/map";
 
-export default function Page(){
-  return <DeliverMap/>
+export default function Page() {
+  return <DeliverMap />;
 }

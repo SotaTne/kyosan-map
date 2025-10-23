@@ -2,6 +2,7 @@ import { GeolocateControlDeliver } from "./maps/geometory-controle-deliver";
 import { PinsDeliver } from "./maps/pins-deliver";
 
 export function InnerMap({ children }: { children?: React.ReactNode }) {
+  console.log("InnerMap rendered");
   return (
     <>
       <GeolocateControlDeliver />

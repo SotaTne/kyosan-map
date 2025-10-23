@@ -2,96 +2,94 @@
 
 import { MapLibreEvent } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Map, {
-  ImmutableLike,
+  AttributionControl,
   MapProps,
-  StyleSpecification,
+  MapRef,
 } from "react-map-gl/maplibre";
-import data from "../../building.json" with { type: "json" };
 import { DEFAULT_CENTER, DEFAULT_ZOOM, KYOTO_BOUNDS } from "../config";
-import { MapContextProvider } from "../contexts/map-context";
+import { MapNullableContextProvider } from "../contexts/map-context";
 import { InnerMap } from "./inner-map";
-
-/* 初期スタイル */
-const DefaultStyle: StyleSpecification = {
-  version: 8,
-  sources: {
-    openmaptiles: {
-      type: "vector",
-      tiles: ["https://map-tile-server.pages.dev/tiles/{z}/{x}/{y}.pbf"],
-      attribution:
-        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://openmaptiles.org/">OpenMapTiles</a>',
-    },
-  },
-  layers: [
-    {
-      id: "background",
-      type: "background",
-      paint: { "background-color": "#ddeeff" },
-    },
-  ],
-};
+import { PeekDrawer } from "./maps/peekDrawer";
+// import { DrawerDemo } from "./maps/peekDrawer";
 
 export function DeliverMap({
   children,
   loadingNode = null,
-  style = { width: "100vw", height: "100vh" },
+  style = {
+    width: "100vw",
+    height: "100vh",
+    position: "fixed",
+    inset: 0,
+    zIndex: 0,
+  },
 }: {
   children?: React.ReactNode;
   loadingNode?: React.ReactNode;
   style?: React.CSSProperties;
 }) {
-  const [mapStyle, setMapStyle] = useState<
-    string | StyleSpecification | ImmutableLike<StyleSpecification> | undefined
-  >(DefaultStyle);
-
   const [onLoaded, setOnLoaded] = useState(false);
+  const mapRef = useRef<MapRef | null>(null);
+  const [contextLoaded, setContextLoaded] = useState(false);
 
   const mapProps: MapProps = useMemo(
     () =>
       ({
         style,
-        mapStyle,
+        mapStyle: "https://map-tile-server.pages.dev/style.json",
         maxBounds: KYOTO_BOUNDS,
         maxZoom: 20,
         minZoom: 16,
       }) satisfies MapProps,
-    [style, mapStyle]
+    [style]
   );
-  console.log(data);
 
   const handleLoad = useCallback((evt: MapLibreEvent) => {
     const map = evt.target;
-
-    map.setStyle("https://map-tile-server.pages.dev/style.json", {
-      transformStyle: (prev, next) => {
-        if (!prev) throw new Error("prev is undefined");
-        const newStyle: StyleSpecification = {
-          ...prev,
-          layers: [...next.layers],
-        };
-        setMapStyle(newStyle);
-        return newStyle;
-      },
-    });
-
-    map.once("styledata", () => {
-      map.setCenter(DEFAULT_CENTER);
-      map.setZoom(DEFAULT_ZOOM);
-      setOnLoaded(true);
-    });
+    console.log("Map loaded");
+    map.setCenter(DEFAULT_CENTER);
+    map.setZoom(DEFAULT_ZOOM);
+    setOnLoaded(true);
   }, []);
 
   return (
-    <Map {...mapProps} onLoad={handleLoad}>
-      {!onLoaded ? (
-        loadingNode
-      ) : (
-        <MapContextProvider>
-          <InnerMap>{children}</InnerMap>
-        </MapContextProvider>
-      )}
-    </Map>
+    <MapNullableContextProvider
+      mapRef={mapRef.current}
+      isMapLoaded={onLoaded}
+      onLoaded={setContextLoaded}
+    >
+      <PeekDrawer />
+
+      <Map
+        {...mapProps}
+        ref={mapRef}
+        onLoad={handleLoad}
+        attributionControl={false}
+      >
+        <AttributionControl position="top-right" compact />
+        {onLoaded && contextLoaded && <InnerMap>{children}</InnerMap>}
+      </Map>
+
+      {/* Map の外側だが MapNullableContextProvider の中 */}
+      {/* {onLoaded && contextLoaded && (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              top: 10,
+              left: 10,
+              zIndex: 1000,
+              background: "blue",
+              padding: "10px",
+              borderRadius: "8px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            }}
+          >
+            <FacilityTable />
+          </div>
+        </>
+      )} */}
+    </MapNullableContextProvider>
   );
 }

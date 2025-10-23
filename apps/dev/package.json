@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.17.1",
   "type": "module",
   "scripts": {
-    "dev": "next dev --port 3001 --experimental-https",
+    "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start --port 3001",
     "lint": "next lint",

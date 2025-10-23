@@ -36,3 +36,25 @@ export type MapPinProps = {
   size?: number;
   activeScale?: number;
 };
+
+export type FacilityTableInfo =
+  | {
+      mode: "distanceFromGeolocate";
+      data: {
+        id: string;
+        distanceMeter: number;
+      }[];
+    }
+  | {
+      mode: "distanceFromSelectedPin";
+      data: {
+        id: string;
+        distanceMeter: number;
+      }[];
+    }
+  | {
+      mode: "default";
+      data: {
+        id: string;
+      }[];
+    };

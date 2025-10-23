@@ -1,7 +1,14 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo } from "react";
-import { useMap } from "react-map-gl/maplibre";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+import { MapRef } from "react-map-gl/maplibre";
 import { useImmerReducer } from "use-immer";
 import { ALL_PINS } from "../config";
 import {
@@ -20,11 +27,12 @@ export const MapContext = createContext<MapContextType | null>(null);
 
 export function MapContextProvider({
   children,
+  mapRef,
 }: {
   children: React.ReactNode;
+  mapRef: MapRef;
 }) {
-  const map = useMap();
-  const llMap = map.current?.getMap();
+  const llMap = mapRef.getMap();
   const [state, dispatch] = useImmerReducer(mapReducer, defaultState);
   if (!llMap) {
     throw new Error("Map is not initialized");
@@ -83,6 +91,34 @@ export function MapContextProvider({
     idPinMap,
   ]);
   return <MapContext value={context}>{children}</MapContext>;
+}
+
+export function MapNullableContextProvider({
+  children,
+  mapRef,
+  isMapLoaded,
+  onLoaded,
+}: {
+  children: React.ReactNode;
+  mapRef: MapRef | null;
+  isMapLoaded: boolean;
+  onLoaded: (loaded: boolean) => void;
+}) {
+  // ✅ レンダー後に通知する。無限ループ防止に一度だけ発火
+
+  const firedRef = useRef(false);
+  useEffect(() => {
+    console.log("MapNullableContextProvider useEffect");
+    if (!firedRef.current && mapRef && isMapLoaded) {
+      firedRef.current = true;
+      onLoaded(true);
+    }
+  }, [mapRef, onLoaded, isMapLoaded]);
+
+  if (firedRef.current && mapRef) {
+    return <MapContextProvider mapRef={mapRef}>{children}</MapContextProvider>;
+  }
+  return <>{children}</>;
 }
 
 export function useMapContext(): MapContextType {
