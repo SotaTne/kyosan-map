@@ -80,8 +80,7 @@ export function DeliverMap({
       <Map {...mapProps} ref={mapRef} onLoad={handleLoad}></Map>
       <PeekDrawer
         containerStyle={{
-          height: "60px",
-          marginTop: "450px",
+          height: "500px",
           backgroundColor: "pink",
         }}
       />
