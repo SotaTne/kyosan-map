@@ -4,14 +4,14 @@ import { MapLibreEvent } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useCallback, useMemo, useRef, useState } from "react";
 import Map, {
-  AttributionControl,
+  //AttributionControl,
   MapProps,
   MapRef,
 } from "react-map-gl/maplibre";
 import { DEFAULT_CENTER, DEFAULT_ZOOM, KYOTO_BOUNDS } from "../config";
 import { MapNullableContextProvider } from "../contexts/map-context";
-import { InnerMap } from "./inner-map";
 import { PeekDrawer } from "./maps/peekDrawer";
+//import { InnerMap } from "./inner-map";
 // import { DrawerDemo } from "./maps/peekDrawer";
 
 export function DeliverMap({
@@ -19,7 +19,7 @@ export function DeliverMap({
   loadingNode = null,
   style = {
     width: "100vw",
-    height: "100vh",
+    height: "50vh",
     position: "fixed",
     inset: 0,
     zIndex: 0,
@@ -59,9 +59,7 @@ export function DeliverMap({
       isMapLoaded={onLoaded}
       onLoaded={setContextLoaded}
     >
-      <PeekDrawer />
-
-      <Map
+      {/* <Map
         {...mapProps}
         ref={mapRef}
         onLoad={handleLoad}
@@ -69,7 +67,26 @@ export function DeliverMap({
       >
         <AttributionControl position="top-right" compact />
         {onLoaded && contextLoaded && <InnerMap>{children}</InnerMap>}
-      </Map>
+      </Map> */}
+      {/* <Map
+        {...mapProps}
+        ref={mapRef}
+        onLoad={handleLoad}
+        attributionControl={false}
+      >
+        <AttributionControl position="top-right" compact />
+        {onLoaded && contextLoaded && <InnerMap>{children}</InnerMap>}
+      </Map> */}
+      <Map {...mapProps} ref={mapRef} onLoad={handleLoad}></Map>
+      <PeekDrawer
+        containerStyle={{
+          height: "60px",
+          marginTop: "450px",
+          backgroundColor: "pink",
+        }}
+      />
+
+      {/* )} */}
 
       {/* Map の外側だが MapNullableContextProvider の中 */}
       {/* {onLoaded && contextLoaded && (
