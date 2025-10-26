@@ -13,6 +13,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@kyosan-map/ui": "workspace:*",
+    "@radix-ui/react-visually-hidden": "^1.2.3",
     "@turf/destination": "^7.2.0",
     "@turf/distance": "^7.2.0",
     "@turf/helpers": "^7.2.0",
@@ -20,10 +21,12 @@
     "ismobilejs": "^1.1.1",
     "lucide-react": "^0.475.0",
     "maplibre-gl": "^5.9.0",
+    "radix-ui": "^1.4.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-map-gl": "^8.1.0",
-    "use-immer": "^0.11.0"
+    "use-immer": "^0.11.0",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

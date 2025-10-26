@@ -1,9 +1,10 @@
 "use client";
 
+import { Root as VisualHiddenRoot } from "@radix-ui/react-visually-hidden";
 import { useMemo, useState } from "react";
 import { Drawer } from "vaul";
 
-const HEAD_PX = 60; // ハンドル＋ヘッダの高さ
+const HEAD_PX = 30; // ハンドル＋ヘッダの高さ
 
 export function PeekDrawer({
   containerStyle,
@@ -26,7 +27,7 @@ export function PeekDrawer({
 
   // 初期は“ピーク”状態から
   const [snapPoint, setSnapPoint] = useState<string | number | null>(
-    snapPoints[0]
+    snapPoints[1]
   );
   const [container, setContainer] = useState<HTMLElement | null>(null);
 
@@ -60,7 +61,8 @@ export function PeekDrawer({
             <Drawer.Content
               // 位置は Vaul に任せる（absolute など付けない）
               className="
-                rounded-t-lg border-t bg-background text-foreground shadow-lg
+                group/drawer-content bg-background z-50 flex flex-col
+                rounded-t-lg border-t text-foreground shadow-lg inset-x-0
               "
               style={{
                 height: `${openDrawerMemoPx}px`,
@@ -69,11 +71,28 @@ export function PeekDrawer({
                 padding: "0 4px",
               }}
             >
-              {/* ハンドル（デザインは自由に変えてOK） */}
-              <Drawer.Handle className="mx-auto mt-2 h-1.5 w-16 rounded-full bg-muted/80" />
+              <div
+                style={{
+                  height: `${HEAD_PX}px`,
+                  maxHeight: `${HEAD_PX}px`,
+                }}
+              >
+                {/* ハンドル（デザインは自由に変えてOK） */}
+                <Drawer.Handle
+                  style={{
+                    width: "60px",
+                    maxHeight: `${HEAD_PX}px`,
+                    marginTop: "14px",
+                    cursor: "grab",
+                  }}
+                  className="mx-auto mt-3 h-2 rounded-full bg-muted"
+                />
 
-              {/* 見出し（スクリーンリーダー用なら sr-only） */}
-              <Drawer.Title className="sr-only">Peek Drawer</Drawer.Title>
+                {/* 見出し（スクリーンリーダー用なら sr-only） */}
+                <VisualHiddenRoot>
+                  <Drawer.Title className="sr-only">Peek Drawer</Drawer.Title>
+                </VisualHiddenRoot>
+              </div>
 
               {/* スクロール領域（ヘッダ分を引いた高さ） */}
               <div
