@@ -3,6 +3,9 @@
 import { Root as VisualHiddenRoot } from "@radix-ui/react-visually-hidden";
 import { useMemo, useState } from "react";
 import { Drawer } from "vaul";
+import { CardProps, FacilityTableInfo } from "../../types/map-type";
+import { NormalCard } from "../cards/normal_card";
+import { SelectCard } from "../cards/select_card";
 
 const HEAD_PX = 30; // ハンドル＋ヘッダの高さ
 
@@ -10,10 +13,12 @@ export function PeekDrawer({
   containerStyle,
   containerClassName,
   openDrawerPx = 200,
+  facilitiesTable,
 }: {
   containerStyle?: React.CSSProperties;
   containerClassName?: string;
   openDrawerPx?: number;
+  facilitiesTable?: FacilityTableInfo;
 }) {
   const openDrawerMemoPx = useMemo(
     () => Math.max(openDrawerPx, HEAD_PX), // 安全クランプ
@@ -30,6 +35,66 @@ export function PeekDrawer({
     snapPoints[1]
   );
   const [container, setContainer] = useState<HTMLElement | null>(null);
+
+  const items: CardProps[] = useMemo(
+    () =>
+      [
+        {
+          title: "図書館青葉",
+          description: "自然光が入る静かな自習エリア。平日22時まで。",
+          category: "building",
+          tags: ["Wi‑Fi", "自習"],
+          distanceM: 120,
+        },
+        {
+          title: "商店街アーケード",
+          description: "老舗と新店が並ぶ散策スポット。雨でも歩きやすい。",
+          category: "shop",
+          tags: ["散策"],
+          distanceM: 350,
+        },
+        {
+          title: "喫茶ひだまり",
+          description: "ネルドリップの深煎り。厚切りトーストが人気。",
+          category: "food",
+          tags: ["モーニング"],
+          distanceM: 210,
+        },
+        {
+          title: "資料館別館",
+          description: "展示替え中。週末は学芸員トークあり。",
+          category: "tips",
+          tags: ["展示"],
+          distanceM: 480,
+        },
+        {
+          title: "市民体育館",
+          description: "夜間開放のランニングコース。シャワー有り。",
+          category: "building",
+          tags: ["運動"],
+          distanceM: 640,
+        },
+      ] as const,
+    []
+  );
+
+  const facilitiesDiv = useMemo(() => {
+    // if (!facilitiesTable) return null;
+    return (
+      <div className="mx-auto max-w-2xl space-y-4 p-4">
+        <SelectCard
+          title={items[0]!.title}
+          description={items[0]!.description}
+          category={items[0]!.category}
+          tags={items[0]!.tags}
+          image={"/nonexistent.svg"}
+        />
+        {items.slice(1).map((it) => (
+          <NormalCard key={it.title} {...it} image={"/nonexistent.svg"} />
+        ))}
+      </div>
+    );
+  }, [items]);
 
   return (
     <div>
@@ -66,9 +131,7 @@ export function PeekDrawer({
               "
               style={{
                 height: `${openDrawerMemoPx}px`,
-                width: "90%", // container 幅にフィット
-                margin: "0 auto", // 必要ならセンタリング
-                padding: "0 4px",
+                width: "100vw", // container 幅にフィット
               }}
             >
               <div
@@ -105,13 +168,7 @@ export function PeekDrawer({
                 }}
                 className="px-5"
               >
-                <div className="mx-auto max-w-md space-y-4">
-                  {Array.from({ length: 20 }).map((_, i) => (
-                    <p key={i} className="text-muted-foreground">
-                      テキスト行 {i + 1}
-                    </p>
-                  ))}
-                </div>
+                {facilitiesDiv}
               </div>
             </Drawer.Content>
           </Drawer.Portal>

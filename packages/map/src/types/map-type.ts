@@ -47,6 +47,7 @@ export type FacilityTableInfo =
     }
   | {
       mode: "distanceFromSelectedPin";
+      selectPinId: string;
       data: {
         id: string;
         distanceMeter: number;
@@ -58,3 +59,19 @@ export type FacilityTableInfo =
         id: string;
       }[];
     };
+
+export type SafeImageProps = {
+  src?: string;
+  alt: string;
+  size?: number;
+  fallbackColor?: string;
+};
+
+export type CardProps = {
+  title: string;
+  description: string;
+  category: PinCategory;
+  tags?: string[];
+  image?: string;
+  distanceM?: number;
+};

@@ -1,42 +1,13 @@
 "use client";
 
-import { MapPinProps, PinCategory } from "@kyosan-map/map/types/map-type";
 import { cn } from "@kyosan-map/ui/lib/utils";
-import { Building2, Coffee, Lightbulb, ShoppingBag } from "lucide-react";
 import { memo } from "react";
+import { CATEGORY_STYLE } from "../../config";
+import { MapPinProps } from "../../types/map-type";
 
 /* =========================================================
  * 🎨 カテゴリ別スタイル（Google Maps風カラー）
  * ========================================================= */
-const CATEGORY_STYLE: Record<
-  PinCategory,
-  {
-    fill: string;
-    activeFill: string;
-    icon: typeof Building2;
-  }
-> = {
-  building: {
-    fill: "#4285F4",
-    activeFill: "#2b64d5",
-    icon: Building2,
-  },
-  shop: {
-    fill: "#34A853",
-    activeFill: "#1e7e34",
-    icon: ShoppingBag,
-  },
-  food: {
-    fill: "#FBBC05",
-    activeFill: "#e2a700",
-    icon: Coffee,
-  },
-  tips: {
-    fill: "#A142F4",
-    activeFill: "#8220c9",
-    icon: Lightbulb,
-  },
-};
 
 /* =========================================================
  * 📍 MapPin コンポーネント

@@ -7,25 +7,27 @@ import { FacilityTableInfo } from "../../types/map-type";
 
 export function FacilityTable() {
   const { state, pinsDistanceOfPoint, idPinMap } = useMapContext();
+  // 選択->現在地->通常の順で優先
   const focusedPin = useMemo(() => {
     if (!state.focusedPinId) return null;
     return idPinMap.get(state.focusedPinId) || null;
   }, [state.focusedPinId, idPinMap]);
-  const facilities: FacilityTableInfo = useMemo<FacilityTableInfo>(() => {
-    if (state.geolocatePos) {
+  const _facilities: FacilityTableInfo = useMemo<FacilityTableInfo>(() => {
+    if (state.focusedPinId && focusedPin) {
+      return {
+        mode: "distanceFromSelectedPin",
+        selectPinId: state.focusedPinId,
+        data: pinsDistanceOfPoint({
+          lat: focusedPin.lat,
+          lng: focusedPin.lng,
+        }),
+      } satisfies FacilityTableInfo;
+    } else if (state.geolocatePos) {
       return {
         mode: "distanceFromGeolocate",
         data: pinsDistanceOfPoint({
           lat: state.geolocatePos.lat,
           lng: state.geolocatePos.lng,
-        }),
-      } satisfies FacilityTableInfo;
-    } else if (state.focusedPinId && focusedPin) {
-      return {
-        mode: "distanceFromSelectedPin",
-        data: pinsDistanceOfPoint({
-          lat: focusedPin.lat,
-          lng: focusedPin.lng,
         }),
       } satisfies FacilityTableInfo;
     } else {
@@ -37,19 +39,20 @@ export function FacilityTable() {
   }, [state.geolocatePos, state.focusedPinId, pinsDistanceOfPoint, focusedPin]);
   const withoutSelectedPinFacilities: FacilityTableInfo =
     useMemo<FacilityTableInfo>(() => {
-      if (facilities.mode === "distanceFromSelectedPin") {
+      if (_facilities.mode === "distanceFromSelectedPin") {
         return {
-          mode: facilities.mode,
-          data: facilities.data.filter(
+          mode: _facilities.mode,
+          selectPinId: _facilities.selectPinId,
+          data: _facilities.data.filter(
             (item) => item.id !== state.focusedPinId
           ),
         } satisfies FacilityTableInfo;
       }
-      return facilities;
-    }, [facilities, state.focusedPinId]);
+      return _facilities;
+    }, [_facilities, state.focusedPinId]);
 
   console.log("FacilityTable render", {
-    facilities,
+    _facilities,
     withoutSelectedPinFacilities,
   });
 

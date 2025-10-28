@@ -4,12 +4,14 @@ import { MapLibreEvent } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useCallback, useMemo, useRef, useState } from "react";
 import Map, {
+  AttributionControl,
   //AttributionControl,
   MapProps,
   MapRef,
 } from "react-map-gl/maplibre";
 import { DEFAULT_CENTER, DEFAULT_ZOOM, KYOTO_BOUNDS } from "../config";
 import { MapNullableContextProvider } from "../contexts/map-context";
+import { InnerMap } from "./inner-map";
 import { PeekDrawer } from "./maps/peekDrawer";
 //import { InnerMap } from "./inner-map";
 // import { DrawerDemo } from "./maps/peekDrawer";
@@ -68,7 +70,7 @@ export function DeliverMap({
         <AttributionControl position="top-right" compact />
         {onLoaded && contextLoaded && <InnerMap>{children}</InnerMap>}
       </Map> */}
-      {/* <Map
+      <Map
         {...mapProps}
         ref={mapRef}
         onLoad={handleLoad}
@@ -76,14 +78,22 @@ export function DeliverMap({
       >
         <AttributionControl position="top-right" compact />
         {onLoaded && contextLoaded && <InnerMap>{children}</InnerMap>}
-      </Map> */}
-      <Map {...mapProps} ref={mapRef} onLoad={handleLoad}></Map>
-      <PeekDrawer
+      </Map>
+      {/* <Map {...mapProps} ref={mapRef} onLoad={handleLoad}></Map> */}
+      {/* <PeekDrawer
         containerStyle={{
           height: "500px",
           backgroundColor: "pink",
         }}
-      />
+      /> */}
+      {onLoaded && contextLoaded && (
+        <PeekDrawer
+          containerStyle={{
+            height: "500px",
+            backgroundColor: "pink",
+          }}
+        />
+      )}
 
       {/* )} */}
 
