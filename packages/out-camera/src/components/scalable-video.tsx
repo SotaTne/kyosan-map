@@ -162,16 +162,19 @@ export function WebGLCanvasCamera({
   };
 
   // ★ ポイントがリロードボタン内かどうかをチェック
-  const isPointInReloadButton = useCallback((clientX: number, clientY: number): boolean => {
-    if (!reloadButtonRef.current) return false;
-    const rect = reloadButtonRef.current.getBoundingClientRect();
-    return (
-      clientX >= rect.left &&
-      clientX <= rect.right &&
-      clientY >= rect.top &&
-      clientY <= rect.bottom
-    );
-  }, []);
+  const isPointInReloadButton = useCallback(
+    (clientX: number, clientY: number): boolean => {
+      if (!reloadButtonRef.current) return false;
+      const rect = reloadButtonRef.current.getBoundingClientRect();
+      return (
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+      );
+    },
+    []
+  );
 
   const handleReload = useCallback(
     async (e: React.MouseEvent | React.PointerEvent) => {
@@ -915,15 +918,27 @@ export function WebGLCanvasCamera({
     el.addEventListener("pointercancel", pointerCancel);
     el.addEventListener("pointerout", pointerOut);
     el.addEventListener("pointerleave", pointerLeave);
-    el.addEventListener("gesturestart", prevent as any, {
-      passive: false,
-    } as any);
-    el.addEventListener("gesturechange", prevent as any, {
-      passive: false,
-    } as any);
-    el.addEventListener("gestureend", prevent as any, {
-      passive: false,
-    } as any);
+    el.addEventListener(
+      "gesturestart",
+      prevent as any,
+      {
+        passive: false,
+      } as any
+    );
+    el.addEventListener(
+      "gesturechange",
+      prevent as any,
+      {
+        passive: false,
+      } as any
+    );
+    el.addEventListener(
+      "gestureend",
+      prevent as any,
+      {
+        passive: false,
+      } as any
+    );
 
     return () => {
       el.removeEventListener("wheel", wheelHandler);
@@ -984,6 +999,29 @@ export function WebGLCanvasCamera({
           pointerEvents: "none",
         }}
       />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "50px",
+          left: "50%",
+          width: "360px",
+          transform: "translateX(-50%)",
+          paddingTop: "8px",
+          paddingBottom: "8px",
+          background: "rgba(255, 255, 255, 0.6)", // 半透明の白背景
+          borderRadius: "16px", // 丸角
+          color: "#333",
+          fontSize: "14px",
+          textAlign: "center",
+          zIndex: 5,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+          pointerEvents: "none", // カメラ操作やクリックを妨げない
+          userSelect: "none",
+          backdropFilter: "blur(6px)", // 少しぼかして高級感を出す
+        }}
+      >
+        対象の文字を画面中央に合わせてタップしてください
+      </div>
       {/* リロードボタン */}
       {reloadPos && (
         <button

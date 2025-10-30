@@ -1,0 +1,9 @@
+{
+  "name": "@kyosan-map/shared",
+  "version": "0.0.0",
+  "private": true,
+  "license": "PROPRIETARY",
+  "publishConfig": {
+    "access": "public"
+  }
+}
