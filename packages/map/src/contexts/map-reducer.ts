@@ -81,7 +81,7 @@ export const mapReducer: ImmerReducer<State, Action> = (draft, action) => {
       draft.uiVisible = action.payload;
       return;
     case "SET_FILTER":
-      draft.filter = { ...action.payload, ...draft.filter };
+      draft.filter = { ...draft.filter, ...action.payload };
       return;
     case "SET_FOCUSED_PIN_ID":
       draft.focusedPinId = action.payload;

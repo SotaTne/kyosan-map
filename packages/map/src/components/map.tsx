@@ -15,6 +15,7 @@ import {
   ALL_PINS,
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
+  DRAWER_PERCENTAGE,
   KYOTO_BOUNDS,
 } from "../config";
 import { MapNullableContextProvider } from "../contexts/map-context";
@@ -42,7 +43,7 @@ export function DeliverMap({
   const vw_100 = window.innerWidth;
   const viewHeightSize = vh_100; // ヘッダ等を除いたサイズ
   const viewWidthSize = vw_100; // ヘッダ等を除いたサイズ
-  const uiDimensions = Math.floor(viewHeightSize * 0.45);
+  const uiDimensions = Math.floor(viewHeightSize * DRAWER_PERCENTAGE);
 
   const style = useMemo<React.CSSProperties>(
     () => ({

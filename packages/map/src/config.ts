@@ -15,6 +15,10 @@ export const DEFAULT_ZOOM = 18;
 
 export const PIXEL_SCALE = 256;
 
+export const DRAWER_PERCENTAGE = 0.45;
+
+export const HEAD_PX = 70; // ハンドル＋ヘッダの高さ
+
 export const ALL_PINS: Facility[] = [
   {
     id: "building_1",

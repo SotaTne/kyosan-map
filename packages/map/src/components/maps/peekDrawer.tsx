@@ -4,12 +4,12 @@ import { distanceMetersFloor } from "@kyosan-map/map/functions/map-utils";
 import { Root as VisualHiddenRoot } from "@radix-ui/react-visually-hidden";
 import { useEffect, useMemo, useState } from "react";
 import { Drawer } from "vaul";
+import { HEAD_PX } from "../../config";
 import { useMapContext } from "../../contexts/map-context";
 import { CardProps, Facility, SelectedCardProps } from "../../types/map-type";
 import { NormalCard } from "../cards/normal_card";
 import { SelectCard } from "../cards/select_card";
-
-const HEAD_PX = 30; // ハンドル＋ヘッダの高さ
+import { CalmFilterToggleGroup } from "./toggle_filter";
 
 export function PeekDrawer({
   containerStyle,
@@ -206,6 +206,7 @@ export function PeekDrawer({
                   }}
                   className="mx-auto mt-3 h-2 rounded-full bg-muted"
                 />
+                <CalmFilterToggleGroup />
 
                 {/* 見出し（スクリーンリーダー用なら sr-only） */}
                 <VisualHiddenRoot>

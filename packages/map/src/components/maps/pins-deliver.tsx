@@ -26,21 +26,20 @@ export function PinsDeliver() {
       const facility = idPinMap.get(pinId);
       if (!facility) throw new Error("Facility not found for pinId: " + pinId);
       return (
-        <div key={pinId}>
-          <Marker
-            longitude={facility.lng}
-            latitude={facility.lat}
-            onClick={() => {
-              setCenterWithPinID(pinId);
-            }}
-          >
-            <MapPin
-              category={facility.type}
-              title={facility.name}
-              active={pinId === selectedFacilityId}
-            />
-          </Marker>
-        </div>
+        <Marker
+          longitude={facility.lng}
+          latitude={facility.lat}
+          onClick={() => {
+            setCenterWithPinID(pinId);
+          }}
+          key={pinId}
+        >
+          <MapPin
+            category={facility.type}
+            title={facility.name}
+            active={pinId === selectedFacilityId}
+          />
+        </Marker>
       );
     });
   }, [idPinMap, selectedFacilityId, setCenterWithPinID, sortedPinIds]);
