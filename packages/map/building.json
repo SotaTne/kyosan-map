@@ -1,0 +1,13 @@
+{
+  "$schema": "./schema.json",
+  "data": [
+    {
+      "id": "0",
+      "name": "情報学部棟",
+      "type": "building",
+      "lat": 35.9435,
+      "lng": 139.6421,
+      "description": "情報学部のメインキャンパスです。"
+    }
+  ]
+}

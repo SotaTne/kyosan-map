@@ -1,12 +1,13 @@
 "use client";
 
+// @ts-ignore
+import { useOpenCv } from "opencv-react";
+
 import { useEffect, useMemo, useState } from "react";
 import { ImagePreprocessContext } from "../contexts/preprocess-context";
 import { ImageRecognizerContext } from "../contexts/recognizer-context";
 import { ImagePreprocessor } from "../lib/image-preprocess";
 import { Recognizer } from "../lib/recognizer";
-/// @ts-ignore
-import { useOpenCv } from "opencv-react";
 import { ClientImageProviderProps } from "../types/type";
 
 // デフォルトのモデルパス
