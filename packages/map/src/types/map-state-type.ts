@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
 import { Action } from "../contexts/map-reducer";
-import { Facility } from "./map-type";
+import { Facility, FacilityTableInfo } from "./map-type";
 
 export interface FilterState {
   shop: boolean;
@@ -20,20 +20,20 @@ export interface ViewPointState {
   zoom?: number; // あると便利（オプション）
 }
 
-export interface UiDimensionsState {
-  mobile: { modalHeight?: number };
-  desktop: { sidebarWidth?: number };
-}
+// export interface UiDimensionsState {
+//   mobile: { modalHeight?: number };
+//   desktop: { sidebarWidth?: number };
+// }
 
 export interface State {
   /** デバイスモード */
-  deviceMode: "desktop" | "mobile";
+  // deviceMode: "desktop" | "mobile";
 
   /** UI表示状態 */
   uiVisible: boolean;
 
   /** UIの実測寸法（レイアウト計測後に設定） */
-  uiDimensions: UiDimensionsState;
+  uiDimensions: number; //UiDimensionsState;
 
   /** フィルタ状態 */
   filter: FilterState;
@@ -67,4 +67,6 @@ export type MapContextType = {
   adjustedCenter: { lat: number; lng: number };
   pinsDistanceOfPoint: PinsDistanceOfPointType;
   idPinMap: IdPinMapType;
+  withoutSelectedPinFacilities: FacilityTableInfo;
+  setCenterWithPinID: (pinId: string) => void;
 };

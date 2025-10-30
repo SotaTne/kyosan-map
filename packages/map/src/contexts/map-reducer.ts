@@ -38,25 +38,16 @@ export const defaultViewPointState: ViewPointState = {
 };
 
 export const defaultState: State = {
-  deviceMode: "desktop",
-  uiVisible: true,
-  uiDimensions: {
-    mobile: {},
-    desktop: {},
-  },
+  uiVisible: false,
+  uiDimensions: 0,
   filter: defaultFilterState,
-  focusedPinId: "tips_1",
+  focusedPinId: null,
   viewport: defaultViewPointState,
   geolocatePos: null,
 };
 
 export type Action =
-  | {
-      type: "SET_DEVICE_MODE";
-      payload:
-        | { device: "desktop"; sidebarWidth: number }
-        | { device: "mobile"; modalHeight: number };
-    }
+  | { type: "SET_UI_DIMENSIONS"; payload: number }
   | {
       type: "SET_UI_VISIBLE";
       payload: boolean;
@@ -83,15 +74,8 @@ export type Action =
 
 export const mapReducer: ImmerReducer<State, Action> = (draft, action) => {
   switch (action.type) {
-    case "SET_DEVICE_MODE":
-      draft.deviceMode = action.payload.device;
-      if (action.payload.device === "desktop") {
-        draft.uiDimensions.desktop.sidebarWidth = action.payload.sidebarWidth;
-        draft.uiDimensions.mobile.modalHeight = undefined;
-      } else {
-        draft.uiDimensions.mobile.modalHeight = action.payload.modalHeight;
-        draft.uiDimensions.desktop.sidebarWidth = undefined;
-      }
+    case "SET_UI_DIMENSIONS":
+      draft.uiDimensions = action.payload;
       return;
     case "SET_UI_VISIBLE":
       draft.uiVisible = action.payload;

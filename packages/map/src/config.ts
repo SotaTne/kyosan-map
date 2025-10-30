@@ -11,7 +11,7 @@ export const KYOTO_BOUNDS: [number, number, number, number] = [
 
 export const DEFAULT_CENTER: [number, number] = [135.7585, 35.0705];
 
-export const DEFAULT_ZOOM = 19;
+export const DEFAULT_ZOOM = 18;
 
 export const PIXEL_SCALE = 256;
 

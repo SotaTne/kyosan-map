@@ -6,7 +6,8 @@ import { useMapContext } from "../../contexts/map-context";
 import { MapPin } from "./pin";
 
 export function PinsDeliver() {
-  const { state, sortedPinIds, idPinMap, dispatch } = useMapContext();
+  const { state, sortedPinIds, idPinMap, dispatch, setCenterWithPinID } =
+    useMapContext();
 
   // const facilities: { id: string; distanceMeter: number }[] | { id: string }[] =
   //   useMemo(() => {
@@ -30,10 +31,7 @@ export function PinsDeliver() {
             longitude={facility.lng}
             latitude={facility.lat}
             onClick={() => {
-              dispatch({
-                type: "SET_FOCUSED_PIN_ID",
-                payload: pinId,
-              });
+              setCenterWithPinID(pinId);
             }}
           >
             <MapPin
@@ -45,7 +43,7 @@ export function PinsDeliver() {
         </div>
       );
     });
-  }, [dispatch, idPinMap, selectedFacilityId, sortedPinIds]);
+  }, [idPinMap, selectedFacilityId, setCenterWithPinID, sortedPinIds]);
 
   return <>{pins}</>;
 }

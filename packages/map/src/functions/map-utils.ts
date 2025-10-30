@@ -49,19 +49,22 @@ export function getDegreesPerPixel(
  * - モバイル：下モーダル → y: -h/2（上へ）
  * - デスクトップ：左サイドバー → x: +w/2（右へ）
  */
-export function cameraOffsetPxFromState(state: State): {
+export function cameraOffsetPxFromState({
+  uiVisible,
+  uiDimension = 0,
+}: {
+  uiVisible: boolean;
+  uiDimension?: number;
+}): {
   x: number;
   y: number;
 } {
-  if (!state.uiVisible) return { x: 0, y: 0 };
-
-  if (state.deviceMode === "mobile") {
-    const h = state.uiDimensions.mobile.modalHeight ?? 0;
-    return { x: 0, y: -h / 2 };
-  } else {
-    const w = state.uiDimensions.desktop.sidebarWidth ?? 0;
-    return { x: +w / 2, y: 0 };
-  }
+  // if (!state.uiVisible) return { x: 0, y: 0 };
+  // const h = state.uiDimensions.mobile.modalHeight ?? 0;
+  //   return { x: 0, y: -h / 2 };
+  if (!uiVisible) return { x: 0, y: 0 };
+  const h = uiDimension;
+  return { x: 0, y: h / 2 };
 }
 
 /**
@@ -71,21 +74,23 @@ export function cameraOffsetPxFromState(state: State): {
  */
 export function selectAdjustedCenter(
   map: Map,
-  state: State
+  center: {
+    lat: number;
+    lng: number;
+  },
+  uiVisible: boolean,
+  uiDimension?: number
 ): { lat: number; lng: number } {
   try {
-    const offsetPx = cameraOffsetPxFromState(state);
-    const centerPx = map.project([
-      state.viewport.center.lng,
-      state.viewport.center.lat,
-    ]);
+    const offsetPx = cameraOffsetPxFromState({ uiVisible, uiDimension });
+    const centerPx = map.project([center.lng, center.lat]);
     const adjusted = map.unproject(
       new Point(centerPx.x + offsetPx.x, centerPx.y + offsetPx.y) as MlPoint
     );
     return { lat: adjusted.lat, lng: adjusted.lng };
   } catch {
     // map が未準備などの例外時は補正なし
-    return state.viewport.center;
+    return center;
   }
 }
 
@@ -118,7 +123,12 @@ export function calculateSortedPins(
   allPins: Facility[],
   opts?: { useViewportBounds?: boolean }
 ): string[] {
-  const adjustedCenter = selectAdjustedCenter(map, state);
+  const adjustedCenter = selectAdjustedCenter(
+    map,
+    state.viewport.center,
+    state.uiVisible,
+    state.uiDimensions
+  );
 
   const candidates = (
     opts?.useViewportBounds

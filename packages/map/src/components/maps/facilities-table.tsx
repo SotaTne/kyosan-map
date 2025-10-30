@@ -41,7 +41,7 @@ export function FacilityTable() {
     useMemo<FacilityTableInfo>(() => {
       if (_facilities.mode === "distanceFromSelectedPin") {
         return {
-          mode: _facilities.mode,
+          mode: "distanceFromSelectedPin",
           selectPinId: _facilities.selectPinId,
           data: _facilities.data.filter(
             (item) => item.id !== state.focusedPinId

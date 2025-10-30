@@ -1,9 +1,10 @@
 "use client";
 
 import { Root as VisualHiddenRoot } from "@radix-ui/react-visually-hidden";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Drawer } from "vaul";
-import { CardProps, FacilityTableInfo } from "../../types/map-type";
+import { useMapContext } from "../../contexts/map-context";
+import { CardProps } from "../../types/map-type";
 import { NormalCard } from "../cards/normal_card";
 import { SelectCard } from "../cards/select_card";
 
@@ -12,17 +13,15 @@ const HEAD_PX = 30; // ハンドル＋ヘッダの高さ
 export function PeekDrawer({
   containerStyle,
   containerClassName,
-  openDrawerPx = 200,
-  facilitiesTable,
 }: {
   containerStyle?: React.CSSProperties;
   containerClassName?: string;
-  openDrawerPx?: number;
-  facilitiesTable?: FacilityTableInfo;
 }) {
+  const { state, dispatch } = useMapContext();
+
   const openDrawerMemoPx = useMemo(
-    () => Math.max(openDrawerPx, HEAD_PX), // 安全クランプ
-    [openDrawerPx]
+    () => Math.max(state.uiDimensions, HEAD_PX), // 安全クランプ
+    [state.uiDimensions]
   );
 
   const snapPoints = useMemo<[`${number}px`, `${number}px`]>(
@@ -32,7 +31,7 @@ export function PeekDrawer({
 
   // 初期は“ピーク”状態から
   const [snapPoint, setSnapPoint] = useState<string | number | null>(
-    snapPoints[1]
+    snapPoints[0]
   );
   const [container, setContainer] = useState<HTMLElement | null>(null);
 
@@ -78,6 +77,15 @@ export function PeekDrawer({
     []
   );
 
+  useEffect(() => {
+    if (state.uiVisible) {
+      setSnapPoint(snapPoints[1]);
+    }
+    if (!state.uiVisible) {
+      setSnapPoint(snapPoints[0]);
+    }
+  }, [snapPoints, setSnapPoint, state.uiVisible]);
+
   const facilitiesDiv = useMemo(() => {
     // if (!facilitiesTable) return null;
     return (
@@ -114,10 +122,19 @@ export function PeekDrawer({
           noBodyStyles
           snapPoints={snapPoints}
           activeSnapPoint={snapPoint}
-          setActiveSnapPoint={setSnapPoint}
+          setActiveSnapPoint={(v) => {
+            if (v === snapPoints[0]) {
+              dispatch({ type: "SET_UI_VISIBLE", payload: false });
+            }
+            if (v === snapPoints[1]) {
+              dispatch({ type: "SET_UI_VISIBLE", payload: true });
+            }
+          }}
           snapToSequentialPoint
           defaultOpen
           fadeFromIndex={0}
+          open={true}
+          onOpenChange={() => {}}
         >
           <Drawer.Portal container={container}>
             {/* 背景を触れるので pointer-events はなし */}
@@ -132,6 +149,7 @@ export function PeekDrawer({
               style={{
                 height: `${openDrawerMemoPx}px`,
                 width: "100vw", // container 幅にフィット
+                zIndex: 100,
               }}
             >
               <div
