@@ -68,10 +68,22 @@ export type SafeImageProps = {
 };
 
 export type CardProps = {
-  title: string;
-  description: string;
-  category: PinCategory;
-  tags?: string[];
-  image?: string;
-  distanceM?: number;
+  // title: string;
+  // description: string;
+  // category: PinCategory;
+  // tags?: string[];
+  // image?: string;
+  facility: Facility;
+  distance?: {
+    meter: number;
+    from: "geolocate" | "selectedPin";
+  };
+  handleClick: (id: string) => void;
+};
+
+export type SelectedCardProps = {
+  facility: Facility;
+  handleCloseClick: () => void;
+  handleClick: (id: string) => void;
+  distanceFromGeolocate?: number;
 };

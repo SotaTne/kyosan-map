@@ -40,7 +40,7 @@ export function DeliverMap({
   const [contextLoaded, setContextLoaded] = useState(false);
   const vh_100 = window.innerHeight;
   const vw_100 = window.innerWidth;
-  const viewHeightSize = vh_100 - 100; // ヘッダ等を除いたサイズ
+  const viewHeightSize = vh_100; // ヘッダ等を除いたサイズ
   const viewWidthSize = vw_100; // ヘッダ等を除いたサイズ
   const uiDimensions = Math.floor(viewHeightSize * 0.45);
 
@@ -112,7 +112,7 @@ export function DeliverMap({
     const south = evt.target.getBounds().getSouth();
     const east = evt.target.getBounds().getEast();
     const west = evt.target.getBounds().getWest();
-    setMapViewPort({
+    const viewPort: ViewPointState = {
       center: {
         lng: evt.viewState.longitude,
         lat: evt.viewState.latitude,
@@ -124,8 +124,9 @@ export function DeliverMap({
         east,
         west,
       },
-    });
-  }, 500);
+    };
+    setMapViewPort(viewPort);
+  }, 100);
 
   return (
     <MapNullableContextProvider
@@ -135,15 +136,6 @@ export function DeliverMap({
       defaultFocusId={defaultFocus}
       uiDimensions={uiDimensions}
     >
-      {/* <Map
-        {...mapProps}
-        ref={mapRef}
-        onLoad={handleLoad}
-        attributionControl={false}
-      >
-        <AttributionControl position="top-right" compact />
-        {onLoaded && contextLoaded && <InnerMap>{children}</InnerMap>}
-      </Map> */}
       {onLoaded && contextLoaded && (
         <PeekDrawer
           containerStyle={{
@@ -158,43 +150,15 @@ export function DeliverMap({
         ref={mapRef}
         onLoad={handleLoad}
         attributionControl={false}
-        onMove={handleMove}
+        onMove={(e) => {
+          handleMove(e);
+        }}
       >
         <AttributionControl position="top-right" compact />
         {onLoaded && contextLoaded && (
           <InnerMap mapViewPort={mapViewPort}>{children}</InnerMap>
         )}
       </Map>
-
-      {/* <Map {...mapProps} ref={mapRef} onLoad={handleLoad}></Map> */}
-      {/* <PeekDrawer
-        containerStyle={{
-          height: "500px",
-          backgroundColor: "pink",
-        }}
-      /> */}
-
-      {/* )} */}
-
-      {/* Map の外側だが MapNullableContextProvider の中 */}
-      {/* {onLoaded && contextLoaded && (
-        <>
-          <div
-            style={{
-              position: "fixed",
-              top: 10,
-              left: 10,
-              zIndex: 1000,
-              background: "blue",
-              padding: "10px",
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-            <FacilityTable />
-          </div>
-        </>
-      )} */}
     </MapNullableContextProvider>
   );
 }

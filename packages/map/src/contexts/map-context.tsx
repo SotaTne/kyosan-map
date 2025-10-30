@@ -57,6 +57,12 @@ export function MapContextProvider({
     return calculateSortedPins(llMap, state, ALL_PINS);
   }, [llMap, state]);
 
+  const _filteredPins = useMemo(() => {
+    return calculateSortedPins(llMap, state, ALL_PINS, {
+      useViewportBounds: true,
+    });
+  }, [llMap, state]);
+
   const adjustedCenter = useMemo(() => {
     return selectAdjustedCenter(
       llMap,
@@ -78,9 +84,9 @@ export function MapContextProvider({
   const pinsDistanceOfPoint: PinsDistanceOfPointType = useCallback(
     ((value: { lat: number; lng: number } | null) => {
       if (!value) {
-        return sortedPinIds.map((id) => ({ id }));
+        return _filteredPins.map((id) => ({ id }));
       }
-      const arr = sortedPinIds.map((id) => {
+      const arr = _filteredPins.map((id) => {
         const p = idPinMap.get(id)!; // 事前に存在が保証されるなら ! でOK
         const distanceMeter = distanceMetersFloor(
           { lat: p.lat, lng: p.lng },
@@ -91,7 +97,7 @@ export function MapContextProvider({
       arr.sort((a, b) => a.distanceMeter - b.distanceMeter);
       return arr;
     }) as PinsDistanceOfPointType,
-    [sortedPinIds, idPinMap]
+    [_filteredPins, idPinMap]
   );
 
   const setCenterWithPinID = useCallback(
@@ -119,31 +125,6 @@ export function MapContextProvider({
     },
     [dispatch, idPinMap, llMap, state.uiDimensions]
   );
-
-  // useEffect(() => {
-  //   // const defaultFocusCenter = useMemo(() => {
-  //   //   if (!defaultFocus) return null;
-  //   //   const pin = ALL_PINS.find((p) => p.id === defaultFocus);
-  //   //   if (!pin) return null;
-  //   //   const center = { lat: pin.lat, lng: pin.lng };
-  //   //   const adjustedCenter = selectAdjustedCenter(
-  //   //     llMap,
-  //   //     center,
-  //   //     true,
-  //   //     uiDimensions
-  //   //   );
-  //   //   return adjustedCenter;
-  //   // }, [defaultFocus, llMap, uiDimensions]);
-
-  //   console.log("MapContextProvider useEffect for defaultFocusCenter");
-  //   if (_setDefaultFocusRef.current) return;
-  //   if (hasFocusCenter && llMap) {
-  //     console.log("Setting default focus to pin ID:", defaultFocus);
-  //     const pin = ALL_PINS.find((p) => p.id === defaultFocus)!;
-  //     setCenterWithPinID(pin.id);
-  //     _setDefaultFocusRef.current = true;
-  //   }
-  // }, [defaultFocus, hasFocusCenter, llMap, setCenterWithPinID, uiDimensions]);
 
   const focusedPin = useMemo(() => {
     if (!state.focusedPinId) return null;
