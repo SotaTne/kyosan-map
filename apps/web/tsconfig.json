@@ -3,7 +3,9 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@kyosan-map/ui/*": ["../../packages/ui/src/*"]
+      "@kyosan-map/ui/*": ["../../packages/ui/src/*"],
+      "@kyosan-map/out-camera/*": ["../../packages/out-camera/src/*"],
+      "@kyosan-map/map/*": ["../../packages/map/src/*"]
     },
     "plugins": [
       {

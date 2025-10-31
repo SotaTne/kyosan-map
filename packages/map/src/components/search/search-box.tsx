@@ -40,8 +40,7 @@ export function SearchBar({
     return filterFacilitiesAND(facilities, value).slice(0, limit);
   }, [facilities, value, limit]);
 
-  // イベント伝播を止める（Mapに奪われるのを防ぐ）
-  const stopAll = (e: React.SyntheticEvent) => e.stopPropagation();
+  // キーボードイベント伝播を止める（Mapに奪われるのを防ぐ）
   const stopKeys = (e: React.KeyboardEvent) => e.stopPropagation();
 
   const handleValueChange = useCallback(
@@ -69,12 +68,16 @@ export function SearchBar({
     []
   );
 
-  const handleSelect = (f: Facility) => {
-    setValue(f.name);
-    setCenterWithPinID(f.id);
-    setOpen(false);
-    inputRef.current?.focus();
-  };
+  const handleSelect = useCallback(
+    (f: Facility) => {
+      console.log("handleSelect called:", f);
+      setValue(f.name);
+      setCenterWithPinID(f.id);
+      setOpen(false);
+      inputRef.current?.blur();
+    },
+    [setCenterWithPinID]
+  );
 
   return (
     <div
@@ -87,9 +90,6 @@ export function SearchBar({
         width: "300px",
         pointerEvents: "auto",
       }}
-      onPointerDownCapture={stopAll}
-      onPointerUpCapture={stopAll}
-      onClickCapture={stopAll}
       onKeyDownCapture={stopKeys}
       onKeyUpCapture={stopKeys}
     >
@@ -101,13 +101,15 @@ export function SearchBar({
           <CommandInput
             ref={inputRef}
             value={value}
-            onValueChange={handleValueChange}
+            onValueChange={(v) => {
+              handleValueChange(v);
+              inputRef.current?.focus();
+            }}
             onFocus={() => setOpen(true)}
-            onBlur={() => setTimeout(() => setOpen(false), 120)}
+            onBlur={() => setTimeout(() => setOpen(false), 200)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             autoFocus
-            // autoFocusを削除して自動フォーカスを防ぐ
           />
         </div>
 
@@ -119,13 +121,26 @@ export function SearchBar({
                   key={f.id}
                   value={f.id}
                   className="flex items-center gap-2"
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    console.log("select", f.id);
+                  onSelect={() => {
                     handleSelect(f);
+                    inputRef.current?.focus();
                   }}
                   onMouseDown={(e) => {
+                    // mousedownでのフォーカス移動を抑止（入力欄がblur→閉じる→再オープン等のチラつきを防ぐ）
                     e.preventDefault();
+                    inputRef.current?.focus();
+                  }}
+                  onClick={(e) => {
+                    // クリックイベントも明示的にハンドリング
+                    handleSelect(f);
+                    e.preventDefault();
+                    inputRef.current?.focus();
+                  }}
+                  onTouchEnd={(e) => {
+                    // タッチイベントも明示的にハンドリング
+                    handleSelect(f);
+                    e.preventDefault();
+                    inputRef.current?.focus();
                   }}
                 >
                   <div className="min-w-0">
