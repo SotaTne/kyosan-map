@@ -1,23 +1,22 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import useSWR from "swr";
+import PopupContainer from "./_components/contents/ui/PopupContainer";
 import AudioBar from "./contents/_components/audio/AudioBar";
-import type { ViewItem } from "./contents/data/getCollectionForUser";
 import SectionImage from "./contents/sections/SectionImage";
 import SectionModel from "./contents/sections/SectionModel";
 import SectionMusic from "./contents/sections/SectionMusic";
 import ModelViewer from "./contents/three/ModelViewer";
 import ImagePullup from "./contents/ui/ImagePullup";
-import PopupContainer from "./contents/ui/PopupContainer";
 
 const fetcher = (u: string) => fetch(u).then((r) => r.json());
 
 export default function Page() {
-  const { data } = useSWR<ViewItem[]>("/api/collection", fetcher);
   const [previewImg, setPreviewImg] = useState<string | null>(null);
   const [previewModel, setPreviewModel] = useState<string | null>(null);
-  const [track, setTrack] = useState<{ url: string; title: string } | null>(null);
+  const [track, setTrack] = useState<{ url: string; title: string } | null>(
+    null
+  );
 
   if (!data) return <div className="p-4">Loading...</div>;
   const images = data.filter((x) => x.kind === "image");
@@ -28,13 +27,25 @@ export default function Page() {
     <main className="p-4 pb-28">
       <h1 className="text-2xl font-bold text-center mb-6">コレクション</h1>
 
-      <SectionImage title="画像" items={images} onClick={(i) => setPreviewImg(i.displayUrl)} />
+      <SectionImage
+        title="画像"
+        items={images}
+        onClick={(i) => setPreviewImg(i.displayUrl)}
+      />
       <Divider />
 
-      <SectionMusic title="音楽" items={musics} onClick={(i) => setTrack({ url: i.displayUrl, title: i.title })} />
+      <SectionMusic
+        title="音楽"
+        items={musics}
+        onClick={(i) => setTrack({ url: i.displayUrl, title: i.title })}
+      />
       <Divider />
 
-      <SectionModel title="3Dモデル" items={models} onClick={(i) => setPreviewModel(i.displayUrl)} />
+      <SectionModel
+        title="3Dモデル"
+        items={models}
+        onClick={(i) => setPreviewModel(i.displayUrl)}
+      />
 
       {/* 画像プルアップ（高さ0対策済み） */}
       {previewImg && (
