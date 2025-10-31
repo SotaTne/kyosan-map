@@ -5,7 +5,7 @@
       "id": "building_2",
       "name": "情報学部棟",
       "type": "building",
-      "ocrName": ["14号館", ""],
+      "ocrName": ["14号館", "/^14\\d{3}$/"],
       "lat": 35.9435,
       "lng": 139.6421,
       "description": "情報学部のメインキャンパスです。"
@@ -13,96 +13,144 @@
     {
       "id": "building_1",
       "name": "天地館",
-      "ocrName": ["/^T\d+$","/^天地[館馆]$/"],
+      "type": "building",
+      "ocrName": ["/^T\\d{3}$/","/^天地[館馆]$/"],
+      "lat": 35.071503,
+      "lng": 135.758148,
       "description": "コンビニや文房具店があります。"
     },
     {
       "id": "building_2",
       "name": "万有館",
-      "ocrName": ["/^B\d+$","/^万有[館馆]$/"],
+      "type": "building",
+      "ocrName": ["/^S\\d{3}$/","/^万有[館馆]$/"],
+      "lat": 35.071095,
+      "lng": 135.758089,
       "description": "理学部のメインキャンパスです。"
     },
     {
       "id": "building_3",
       "name": "10号館",
+      "type": "building",
       "ocrName": ["/10\\d{3}$/"],
+      "lat": 35.070832,
+      "lng": 135.758277,
       "description": "情報処理教室や教学センターがあります。"
     },
     {
       "id": "building_6",
       "name": "サギタリウス館",
+      "type": "building",
       "ocrName": ["/^S\\d{3}$/","/~サギタリウス[館馆]$/"],
+      "lat": 35.069801,
+      "lng": 135.758336,
       "description": "外国語学部と現代社会学部のメインキャンパスです"
     },
     {
       "id": "building_7",
       "name": "雄飛館",
+      "type": "building",
       "ocrName": ["雄飛館[館馆]$/"],
+      "lat": 35.069753,
+      "lng": 135.758947,
       "description": "むすびキッチン(食堂)や自習スペース、本屋があります。"
     },
     {
       "id": "building_8",
       "name": "12号館",
+      "type": "building",
       "ocrName": ["/^12\\d{3}$/","/^12号[館馆]$/"],
+      "lat": 35.069520,
+      "lng": 135.758137,
       "description": "さまざまな学部の授業や共通教育科目を学ぶ場所です。"
     },
     {
       "id": "building_9",
       "name": "真理館",
+      "type": "building",
       "ocrName": ["/^真理[館馆]$/","/^S\\d{3}$/"],
+      "lat": 35.069380,
+      "lng": 135.758636,
       "description": "国際関係学部と法学部のメインキャンパスです。１階には飲食店も並んでいます。"
     },
     {
       "id": "building_10",
       "name": "神山ホール",
+      "type": "building",
       "ocrName": ["神山ホール"],
+      "lat": 35.071051,
+      "lng": 135.756581,
       "description": "広大なホールでさまざまなイベントが開かれます。"
     },
     {
       "id": "building_11",
       "name": "4号館",
+      "type": "building",
       "ocrName": ["/^4\\d{3}$/","/^4号[館馆]$/"],
+      "lat": 35.070573,
+      "lng": 135.757241,
       "description": "学生ファシリテータ工房や大学史展示室が置かれています。"
     },
     {
       "id": "building_12",
       "name": "13号館",
+      "type": "building",
       "ocrName": ["/^13\\d{3}$/","/^13号[館馆]$/","/^13B\\d{2}$/"],
+      "lat": 35.069981,
+      "lng": 135.757391,
       "description": "ボランティアセンターや進路就職センターが置かれています。"
     },
     {
       "id": "building_13",
       "name": "平楽館",
+      "type": "building",
       "ocrName": ["/^平楽[館馆]$/"],
+      "lat": 35.069415,
+      "lng": 135.757273,
       "description": "さまざまな飲食店が並んでいるほかコンビニも設置されています"
     },
     {
       "id":"building_14",
       "name":"6号館",
+      "type": "building",
       "ocrName": ["/^6\\d{3}$/","/^6号[館馆]$/"],
+      "lat": 35.068880,
+      "lng": 135.757381,
       "description": "とても広い講義室が複数あります。平楽館とは連絡橋を使えばすぐに行けます。"
     },
     {
       "id":"building_15",
       "name":"5号館",
+      "type": "building",
       "ocrName": ["/^5\\d{3}$/","/^5号[館馆]$/"],
+      "lat": 35.068441,
+      "lng": 135.757311,
       "description": "経済学部経営学部メインキャンパスです。"
     },
     {
       "id":"building_16",
       "name":"11号館",
+      "type": "building",
       "ocrName":["/^11\\d{3}$/","/^11号[館馆]$/"],
+      "lat": 35.068090,
+      "lng": 135.757354,
       "description": "文化学部のメインキャンパスです。"
     },
     {
       "id":"building_18",
       "name":"中央図書館",
+      "type": "building",
       "ocrName": ["/^中央図書[館馆]$/"],
+      "lat": 35.070224,
+      "lng": 135.756175,
       "description": "膨大な量の図書を閲覧できる図書館です。地下にも大量の書物が蔵書されています。"
     },
     {
       "id":"building_26",
       "name":"15号館",
+      "type": "building",
+      "lat": 35.069650,
+      "lng": 135.755585,
       "ocrName": ["/^15\\d{3}$/","/^15号[館馆]$/"]
     }
   ]
