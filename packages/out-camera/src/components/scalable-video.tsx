@@ -26,6 +26,7 @@ type Props = {
   reloadPos?: ReloadPosition;
   reloadIcon?: React.ReactNode;
   onReload?: () => void;
+  onForceReset?: () => void; // ★ 完全リセット用コールバック
 };
 
 const VS_300 = `#version 300 es
@@ -75,6 +76,7 @@ export function WebGLCanvasCamera({
   reloadPos = "top-right",
   reloadIcon,
   onReload,
+  onForceReset,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -165,56 +167,6 @@ export function WebGLCanvasCamera({
       );
     },
     []
-  );
-
-  const handleReload = useCallback(
-    async (e: React.MouseEvent | React.PointerEvent) => {
-      e.stopPropagation();
-      e.preventDefault();
-
-      if (isReloading) return;
-
-      setIsReloading(true);
-
-      try {
-        const video = videoRef.current;
-        if (!video) return;
-
-        const tracks = stream.getVideoTracks();
-        const track = tracks[0];
-        if (!track) return;
-
-        track.enabled = false;
-        video.pause();
-
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        const gl = glRef.current;
-        if (gl) {
-          if (texRef.current) {
-            gl.deleteTexture(texRef.current);
-            texRef.current = null;
-          }
-          allocTexRef.current = null;
-        }
-
-        track.enabled = true;
-        await video.play();
-
-        if (video.videoWidth && video.videoHeight) {
-          setMeta({ vw: video.videoWidth, vh: video.videoHeight });
-        }
-
-        if (onReload) {
-          onReload();
-        }
-      } catch (error) {
-        console.error("[WebGLCanvasCamera] Reload failed:", error);
-      } finally {
-        setIsReloading(false);
-      }
-    },
-    [stream, onReload, isReloading]
   );
 
   const compileShader = (
@@ -308,17 +260,55 @@ export function WebGLCanvasCamera({
     const canvas = canvasRef.current;
     if (!canvas) throw new Error("Canvas not found");
 
-    const gl = canvas.getContext("webgl2", {
+    // ★ 既にコンテキストとプログラムが存在し、正常な場合は再利用
+    const existingGl = glRef.current;
+    if (existingGl && !existingGl.isContextLost() && progRef.current && vaoRef.current) {
+      console.log("[WebGLCanvasCamera] Reusing existing WebGL context");
+      return;
+    }
+
+    // ★ 既存のコンテキストをクリーンアップ
+    if (existingGl) {
+      try {
+        if (progRef.current) existingGl.deleteProgram(progRef.current);
+        if (texRef.current) existingGl.deleteTexture(texRef.current);
+        if (vaoRef.current) existingGl.deleteVertexArray(vaoRef.current);
+      } catch (e) {
+        console.warn("[WebGLCanvasCamera] Failed to clean old context:", e);
+      }
+      progRef.current = null;
+      texRef.current = null;
+      vaoRef.current = null;
+      allocTexRef.current = null;
+
+      // コンテキストが正常ならクリアしない
+      if (existingGl.isContextLost()) {
+        glRef.current = null;
+      }
+    }
+
+    const gl = existingGl || canvas.getContext("webgl2", {
       alpha: false,
       antialias: false,
       depth: false,
       stencil: false,
       powerPreference: "high-performance",
-      preserveDrawingBuffer: false, // ★ パフォーマンス重視
+      preserveDrawingBuffer: false, // ★ パフォーマンス重視（元に戻す）
     }) as WebGL2RenderingContext | null;
 
-    if (!gl) throw new Error("WebGL2 not supported");
-    if (gl.isContextLost()) throw new Error("Context lost at init");
+    if (!gl) {
+      console.error("[WebGLCanvasCamera] WebGL2 not supported");
+      throw new Error("WebGL2 not supported");
+    }
+    if (gl.isContextLost()) {
+      console.error("[WebGLCanvasCamera] Context lost at init");
+      throw new Error("Context lost at init");
+    }
+
+    console.log("[WebGLCanvasCamera] Initializing WebGL2 context", {
+      isNewContext: !existingGl,
+      canvas: { width: canvas.width, height: canvas.height }
+    });
 
     glRef.current = gl;
     contextLostRef.current = false;
@@ -353,6 +343,143 @@ export function WebGLCanvasCamera({
     gl.bindVertexArray(vao);
     gl.bindVertexArray(null);
   }, []);
+
+  // ★ WebGLを完全にリセット（Android対策の最終手段）
+  const forceResetWebGL = useCallback(() => {
+    console.log("[WebGLCanvasCamera] Force resetting WebGL context");
+
+    const canvas = canvasRef.current;
+    const gl = glRef.current;
+
+    // 1. すべてのWebGLリソースを削除
+    if (gl) {
+      try {
+        if (progRef.current) gl.deleteProgram(progRef.current);
+        if (texRef.current) gl.deleteTexture(texRef.current);
+        if (vaoRef.current) gl.deleteVertexArray(vaoRef.current);
+
+        // WEBGL_lose_context拡張を使ってコンテキストを強制的に失わせる
+        const ext = gl.getExtension("WEBGL_lose_context");
+        if (ext) {
+          ext.loseContext();
+          console.log("[WebGLCanvasCamera] Context lost via extension");
+        }
+      } catch (e) {
+        console.error("[WebGLCanvasCamera] Error during force reset:", e);
+      }
+    }
+
+    // 2. すべての参照をクリア
+    glRef.current = null;
+    progRef.current = null;
+    vaoRef.current = null;
+    texRef.current = null;
+    uUVRectRef.current = null;
+    allocTexRef.current = null;
+    layoutRef.current = null;
+    contextLostRef.current = false;
+
+    // 3. canvas要素を強制的に再作成（最も強力な方法）
+    if (canvas && canvas.parentElement) {
+      const parent = canvas.parentElement;
+      const newCanvas = canvas.cloneNode(false) as HTMLCanvasElement;
+
+      // 古いcanvasを削除して新しいものに置き換え
+      parent.removeChild(canvas);
+      parent.appendChild(newCanvas);
+      canvasRef.current = newCanvas;
+
+      console.log("[WebGLCanvasCamera] Canvas element recreated");
+    }
+
+    // 4. 親コンポーネントに通知（完全なページリロードを促す）
+    if (onForceReset) {
+      onForceReset();
+    } else {
+      // フォールバック: 再初期化を試みる
+      setTimeout(() => {
+        try {
+          initGL2();
+          console.log("[WebGLCanvasCamera] Re-initialization complete");
+        } catch (e) {
+          console.error("[WebGLCanvasCamera] Re-initialization failed:", e);
+        }
+      }, 100);
+    }
+  }, [initGL2, onForceReset]);
+
+  // ★ リロードボタンのハンドラ（forceResetWebGLを使用）
+  const handleReload = useCallback(
+    async (e: React.MouseEvent | React.PointerEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      if (isReloading) return;
+
+      setIsReloading(true);
+
+      // ★ WebGLの完全リセットを実行（Android対策）
+      console.log("[WebGLCanvasCamera] Reload button clicked - triggering force reset");
+
+      try {
+        // 完全リセットを実行
+        forceResetWebGL();
+
+        // onReloadコールバックも呼び出す（既存の動作を保持）
+        if (onReload) {
+          onReload();
+        }
+      } catch (error) {
+        console.error("[WebGLCanvasCamera] Force reset failed:", error);
+
+        // フォールバック: 従来のリロード処理
+        try {
+          const video = videoRef.current;
+          if (video) {
+            const tracks = stream.getVideoTracks();
+            const track = tracks[0];
+            if (track) {
+              track.enabled = false;
+              video.pause();
+              await new Promise((resolve) => setTimeout(resolve, 100));
+
+              const gl = glRef.current;
+              if (gl) {
+                if (texRef.current) {
+                  gl.deleteTexture(texRef.current);
+                  texRef.current = null;
+                }
+                allocTexRef.current = null;
+              }
+
+              track.enabled = true;
+              await video.play();
+
+              if (video.videoWidth && video.videoHeight) {
+                setMeta({ vw: video.videoWidth, vh: video.videoHeight });
+              }
+            }
+          }
+        } catch (fallbackError) {
+          console.error("[WebGLCanvasCamera] Fallback reload failed:", fallbackError);
+        }
+      } finally {
+        setIsReloading(false);
+      }
+    },
+    [stream, onReload, isReloading, forceResetWebGL]
+  );
+
+  // ★ 外部から呼び出せるようにrefで公開
+  useEffect(() => {
+    if (onReload) {
+      // onReloadが設定されている場合は、forceResetWebGLを使用
+      (window as any).__webglForceReset = forceResetWebGL;
+    }
+    return () => {
+      delete (window as any).__webglForceReset;
+    };
+  }, [forceResetWebGL, onReload]);
 
   useEffect(() => {
     const cvs = canvasRef.current;
@@ -389,14 +516,73 @@ export function WebGLCanvasCamera({
     return () => {
       const gl = glRef.current;
       if (!gl) return;
-      if (progRef.current) gl.deleteProgram(progRef.current);
-      if (texRef.current) gl.deleteTexture(texRef.current);
-      if (vaoRef.current) gl.deleteVertexArray(vaoRef.current);
 
+      // ★ リソースのみ削除、コンテキストは維持（キャッシュ対策）
+      try {
+        if (progRef.current) gl.deleteProgram(progRef.current);
+        if (texRef.current) gl.deleteTexture(texRef.current);
+        if (vaoRef.current) gl.deleteVertexArray(vaoRef.current);
+      } catch (e) {
+        console.warn("[WebGLCanvasCamera] Cleanup error:", e);
+      }
+
+      // ★ 参照はクリアするが、コンテキスト自体は破棄しない
       texRef.current = null;
       vaoRef.current = null;
       progRef.current = null;
-      glRef.current = null;
+      // glRef.current はキャッシュのために維持
+    };
+  }, [initGL2]);
+
+  // ★ Page Visibility API でキャッシュからの復帰を検知（Android対策）
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const gl = glRef.current;
+        // コンテキストが失われている、または存在しない場合は再初期化
+        if (!gl || gl.isContextLost()) {
+          console.log("[WebGLCanvasCamera] Re-initializing context on visibility change");
+          // 強制的にglRefをクリアして完全な再初期化を促す
+          glRef.current = null;
+          progRef.current = null;
+          texRef.current = null;
+          vaoRef.current = null;
+          allocTexRef.current = null;
+          initGL2();
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [initGL2]);
+
+  // ★ bfcache (back-forward cache) からの復帰を検知（Android/iOS対策）
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        // bfcache から復帰した場合、リソースを強制再作成
+        console.log("[WebGLCanvasCamera] Page restored from bfcache, forcing resource recreation");
+        const gl = glRef.current;
+
+        // リソース参照をクリアして再作成を促す
+        progRef.current = null;
+        texRef.current = null;
+        vaoRef.current = null;
+        allocTexRef.current = null;
+
+        if (!gl || gl.isContextLost()) {
+          glRef.current = null;
+          initGL2();
+        }
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, [initGL2]);
 
@@ -554,10 +740,23 @@ export function WebGLCanvasCamera({
   const render = useCallback(() => {
     if (!isRenderingRef.current || contextLostRef.current) return;
 
-    const gl = glRef.current!;
-    const v = videoRef.current!;
-    const prog = progRef.current!;
-    const vao = vaoRef.current!;
+    const gl = glRef.current;
+    const v = videoRef.current;
+    const prog = progRef.current;
+    const vao = vaoRef.current;
+
+    if (!gl || !v || !prog || !vao) {
+      console.warn("[WebGLCanvasCamera] render: Missing resources", {
+        hasGl: !!gl,
+        hasVideo: !!v,
+        hasProg: !!prog,
+        hasVao: !!vao,
+        hasMeta: !!meta,
+        hasLayout: !!layoutRef.current
+      });
+      return;
+    }
+
     if (!meta || !layoutRef.current) return;
     if (v.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
     if (gl.isContextLost()) {

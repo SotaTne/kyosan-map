@@ -70,12 +70,12 @@ function CameraInner({
     });
   };
 
-  // const handleNavigation = useCallback(
-  //   (buildingId: string) => {
-  //     // dbにユーザーがコレクション付きの建物の場合、そのフラグのをonにする
-  //   },
-  //   [router]
-  // );
+  // WebGLの完全リセット処理（Android対策）
+  const handleForceReset = useCallback(() => {
+    console.log("[CameraProvider] Forcing complete WebGL reset");
+    // ページ全体をリロードして完全にクリーンな状態にする
+    window.location.reload();
+  }, []);
 
   return (
     <>
@@ -87,6 +87,7 @@ function CameraInner({
           onTap={handleTap}
           className="w-full h-auto"
           reloadPos="top-right"
+          onForceReset={handleForceReset}
         />
       ) : (
         <div className="flex items-center justify-center h-48 text-gray-400">
@@ -137,12 +138,47 @@ export function CameraProvider({
               初期化エラー
             </h2>
             <p className="text-gray-700 mb-3">{error.message}</p>
-            <button
-              className="px-3 py-2 bg-rose-600 text-white rounded hover:bg-rose-700"
-              onClick={() => window.location.reload()}
-            >
-              リロード
-            </button>
+            <div className="flex gap-2">
+              <button
+                className="flex-1 px-3 py-2 bg-rose-600 text-white rounded hover:bg-rose-700"
+                onClick={() => {
+                  // WebGLキャッシュを完全にクリアしてリロード
+                  console.log("[ErrorComponent] Clearing WebGL cache and reloading");
+
+                  // IndexedDBとlocalStorageをクリア
+                  if (window.indexedDB && window.indexedDB.databases) {
+                    window.indexedDB.databases().then((dbs) => {
+                      dbs.forEach((db) => {
+                        if (db.name) window.indexedDB.deleteDatabase(db.name);
+                      });
+                    });
+                  }
+
+                  // キャッシュストレージをクリア
+                  if ('caches' in window) {
+                    caches.keys().then((names) => {
+                      names.forEach((name) => caches.delete(name));
+                    });
+                  }
+
+                  // 少し待ってからリロード
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 200);
+                }}
+              >
+                完全リセット＆リロード
+              </button>
+              <button
+                className="flex-1 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                onClick={() => window.location.reload()}
+              >
+                通常リロード
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              ※ Androidで黒い画面になる場合は「完全リセット」をお試しください
+            </p>
           </div>
         </div>
       )}
