@@ -31,8 +31,8 @@ function CameraInner({
   const [type, setType] = useState<OCRDialogType>("preparation");
 
   // ビューポートサイズ
-  let vh_100 = window.innerHeight;
-  let vw_100 = window.innerWidth;
+  const vh_100 = window.innerHeight;
+  const vw_100 = window.innerWidth;
 
   const viewHeightSize = vh_100 - headerFooterHeight;
 
