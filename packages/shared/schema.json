@@ -68,6 +68,11 @@
             "description": "経度 (WGS84)",
             "minimum": -180,
             "maximum": 180
+          },
+          "contentsId": {
+            "type": "string",
+            "description": "詳細情報コンテンツID",
+            "default": ""
           }
         },
         "required": ["id", "name", "type", "lat", "lng"],
