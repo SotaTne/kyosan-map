@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { startTransition, useCallback, useEffect, useState } from "react";
 
 import { ImageActionProvider } from "@kyosan-map/out-camera/components/image-action-provider";
 import { OcrAlertDialog } from "@kyosan-map/out-camera/components/ocr-dialog";
@@ -10,6 +10,7 @@ import { WebGLCanvasCamera } from "@kyosan-map/out-camera/components/scalable-vi
 import { OCR_MODEL_PATHS, ONNX_WASM_PATH } from "../_constants/model-paths";
 import { useCamera } from "../_hooks/use-camera";
 import { useOCR } from "../_hooks/use-ocr";
+import { handleScan } from "../_server/handle-scan";
 import type { OCRDialogType, OCRResultData } from "../_types/camera-types";
 
 /**
@@ -31,8 +32,8 @@ function CameraInner({
   const [type, setType] = useState<OCRDialogType>("preparation");
 
   // ビューポートサイズ
-  let vh_100 = window.innerHeight;
-  let vw_100 = window.innerWidth;
+  const vh_100 = window.innerHeight;
+  const vw_100 = window.innerWidth;
 
   const viewHeightSize = vh_100 - headerFooterHeight;
 
@@ -62,12 +63,19 @@ function CameraInner({
   );
 
   // ナビゲーション処理
-  const handleNavigation = useCallback(
-    (buildingId: string) => {
-      router.push(`/map?id=${buildingId}`);
-    },
-    [router]
-  );
+  const submitAction = async (buildingId: string) => {
+    startTransition(async () => {
+      const data = handleScan(buildingId);
+      router.push(`/?id=${buildingId}`);
+    });
+  };
+
+  // const handleNavigation = useCallback(
+  //   (buildingId: string) => {
+  //     // dbにユーザーがコレクション付きの建物の場合、そのフラグのをonにする
+  //   },
+  //   [router]
+  // );
 
   return (
     <>
@@ -92,7 +100,7 @@ function CameraInner({
         open={open}
         setOpen={setOpen}
         onClose={() => setOpen(false)}
-        handleNavigation={handleNavigation}
+        handleNavigation={submitAction}
       />
     </>
   );
@@ -103,7 +111,11 @@ function CameraInner({
  * 親コンポーネント（Providerを維持）
  * ==========================================
  */
-export function CameraProvider() {
+export function CameraProvider({
+  headerFooterHeight,
+}: {
+  headerFooterHeight?: number;
+}) {
   return (
     <ImageActionProvider
       modelPaths={OCR_MODEL_PATHS}
@@ -135,7 +147,7 @@ export function CameraProvider() {
         </div>
       )}
     >
-      <CameraInner />
+      <CameraInner headerFooterHeight={headerFooterHeight} />
     </ImageActionProvider>
   );
 }

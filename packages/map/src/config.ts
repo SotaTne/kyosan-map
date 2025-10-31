@@ -3,7 +3,7 @@ import { Building2, Coffee, Lightbulb, ShoppingBag } from "lucide-react";
 import { Facility, PinCategory } from "./types/map-type";
 
 export const KYOTO_BOUNDS: [number, number, number, number] = [
-  135.7541779, 35.0652063, 135.7608528, 35.0728644,
+  135.7541779, 35.0652063, 135.7600528, 35.0728644,
 ];
 
 // export const KYOTO_BOUNDS: [number, number, number, number] = [

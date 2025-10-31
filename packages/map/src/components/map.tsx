@@ -33,17 +33,19 @@ export function DeliverMap({
   children,
   loadingNode = null,
   defaultFocus = null,
+  footerHeaderHeight = 0,
 }: {
   children?: React.ReactNode;
   loadingNode?: React.ReactNode;
   defaultFocus?: string | null;
+  footerHeaderHeight?: number;
 }) {
   const [onLoaded, setOnLoaded] = useState(false);
   const mapRef = useRef<MapRef | null>(null);
   const [contextLoaded, setContextLoaded] = useState(false);
   const vh_100 = window.innerHeight;
   const vw_100 = window.innerWidth;
-  const viewHeightSize = vh_100; // ヘッダ等を除いたサイズ
+  const viewHeightSize = vh_100 - footerHeaderHeight; // ヘッダ等を除いたサイズ
   const viewWidthSize = vw_100; // ヘッダ等を除いたサイズ
   const uiDimensions = Math.floor(viewHeightSize * DRAWER_PERCENTAGE);
 

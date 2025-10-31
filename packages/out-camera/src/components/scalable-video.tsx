@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 type TapPayload = { x: number; y: number; imageData: ImageData };
@@ -740,7 +741,10 @@ export function WebGLCanvasCamera({
     };
 
     // ★ ピンチズーム対応の改善版
-    const touches = new Map<number, { x: number; y: number; startX: number; startY: number }>();
+    const touches = new Map<
+      number,
+      { x: number; y: number; startX: number; startY: number }
+    >();
     let initialDist = 0;
     let initialZoom = 1;
     let isPinching = false; // ★ ピンチ中フラグ
@@ -773,7 +777,7 @@ export function WebGLCanvasCamera({
         x: ev.clientX,
         y: ev.clientY,
         startX: ev.clientX, // ★ 開始位置を記録
-        startY: ev.clientY
+        startY: ev.clientY,
       });
 
       if (touches.size === 2) {
@@ -796,7 +800,7 @@ export function WebGLCanvasCamera({
       touches.set(ev.pointerId, {
         ...touch,
         x: ev.clientX,
-        y: ev.clientY
+        y: ev.clientY,
       });
 
       if (touches.size === 2 && initialDist > 0) {
