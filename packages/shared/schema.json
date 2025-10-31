@@ -27,9 +27,12 @@
             "description": "施設名"
           },
           "ocrName": {
-            "type": "string",
-            "description": "OCR検出用施設名 これがないとOCR検出されない",
-            "default": ""
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "OCR検出用施設名 これがないとOCR検出されない regexpとして扱われます"
           },
           "description": {
             "type": "string",

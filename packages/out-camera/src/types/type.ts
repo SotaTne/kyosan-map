@@ -1,6 +1,6 @@
 import type cvReadyPromise from "@techstark/opencv-js";
-import type * as ort from "onnxruntime-web";
 import type { ONNXPaddleOCR } from "onnx-ocr-js";
+import type * as ort from "onnxruntime-web";
 import type { ReactNode } from "react";
 
 export type CV2 = Awaited<typeof cvReadyPromise>;
@@ -25,3 +25,53 @@ export interface ClientImageProviderProps {
   /** カスタムエラー表示 */
   errorComponent?: (error: Error) => ReactNode;
 }
+
+export type FacilityType = "building" | "tips" | "shop" | "food";
+
+export type Facility = {
+  /** 施設ID (ユニーク) */
+  id: string;
+
+  /** 施設名 */
+  name: string;
+
+  /** OCR検出用施設名（正規表現として扱われる） */
+  ocrName?: string[];
+
+  /** 施設説明 */
+  description?: string;
+
+  /** 種類 */
+  type: FacilityType;
+
+  /** 施設タグ */
+  tags?: string[];
+
+  /** 施設画像URL */
+  image?: string;
+
+  /** 緯度 (WGS84) */
+  lat: number;
+
+  /** 経度 (WGS84) */
+  lng: number;
+};
+
+export type OcrAlertDialogProps = {
+  result?: {
+    text: string;
+    buildingName?: string;
+    id: string;
+  } | null;
+  type:
+    | "findText"
+    | "noText"
+    | "preparation"
+    | "error"
+    | "fail-camera"
+    | "textOnly"; // 準備中,テキスト検出,テキスト未検出,エラー
+  onClose: () => void;
+  handleNavigation: (buildingId: string) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};

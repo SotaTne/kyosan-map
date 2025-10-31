@@ -13,6 +13,8 @@
   "packageManager": "pnpm@10.17.1",
   "devDependencies": {
     "@kyosan-map/typescript-config": "workspace:*",
+    "@kyosan-map/shared": "workspace:*",
+    "@kyosan-map/ui": "workspace:*",
     "@techstark/opencv-js": "4.11.0-release.1",
     "@kyosan-map/eslint-config": "workspace:*",
     "@types/node": "^24.2.1",

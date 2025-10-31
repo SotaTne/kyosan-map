@@ -1,18 +1,15 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ImageActionProvider } from "@kyosan-map/out-camera/components/image-action-provider";
+import { OcrAlertDialog } from "@kyosan-map/out-camera/components/ocr-dialog";
 import { WebGLCanvasCamera } from "@kyosan-map/out-camera/components/scalable-video";
 import { findNearestOCRBox } from "@kyosan-map/out-camera/functions/box_distance";
+import { findBuilding } from "@kyosan-map/out-camera/functions/find_building";
 import { useImageRecognizer } from "@kyosan-map/out-camera/hooks/recognizer-hook";
 import type { OCRResult, Point } from "@kyosan-map/out-camera/types/type";
+import { useRouter } from "next/navigation";
 
 /**
  * ==========================================
@@ -24,8 +21,19 @@ function CameraInner() {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [lastResult, setLastResult] = useState<OCRResult[] | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [result, setResult] = useState<{
+    id: string;
+    text: string;
+    buildingName: string;
+  } | null>(null);
+  const [type, setType] = useState<
+    "findText" | "noText" | "preparation" | "error" | "fail-camera" | "textOnly"
+  >("preparation");
+  const vh_100 = window.innerHeight;
+  const vw_100 = window.innerWidth;
 
   /** 🚀 カメラ開始 */
   const startCamera = useCallback(async () => {
@@ -46,22 +54,23 @@ function CameraInner() {
       setStream(s);
       setIsRunning(true);
     } catch (err) {
-      alert("カメラの起動に失敗しました。権限を確認してください。");
+      setType("fail-camera");
+      setOpen(true);
     } finally {
       setIsStarting(false);
     }
   }, [isStarting, isRunning]);
 
   /** 🛑 カメラ停止 */
-  const stopCamera = useCallback(() => {
-    const s = streamRef.current;
-    if (s) {
-      s.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    setStream(null);
-    setIsRunning(false);
-  }, []);
+  // const stopCamera = useCallback(() => {
+  //   const s = streamRef.current;
+  //   if (s) {
+  //     s.getTracks().forEach((t) => t.stop());
+  //     streamRef.current = null;
+  //   }
+  //   setStream(null);
+  //   setIsRunning(false);
+  // }, []);
 
   /** 🚫 unmount時もストリームを維持（iOS Safari対策） */
   useEffect(() => {
@@ -73,11 +82,9 @@ function CameraInner() {
   /** 👆 タップ時のOCR処理 */
   const handleTap = useCallback(
     async (payload: { x: number; y: number; imageData: ImageData }) => {
-
       if (!recognizer) {
-        alert(
-          "OCR がまだ初期化されていません。少し待ってから再試行してください。"
-        );
+        setType("preparation");
+        setOpen(true);
         return;
       }
 
@@ -85,10 +92,10 @@ function CameraInner() {
         const resultsRaw = await recognizer.run(payload.imageData);
 
         const results: OCRResult[] = resultsRaw[0]! as unknown as OCRResult[];
-        setLastResult(results);
 
         if (!results || results.length === 0) {
-          alert("文字が検出されませんでした。");
+          setType("noText");
+          setOpen(true);
           return;
         }
 
@@ -96,89 +103,106 @@ function CameraInner() {
         const nearest = findNearestOCRBox(tap, results);
 
         if (!nearest) {
-          alert("適切な領域が見つかりませんでした。");
+          setType("noText");
+          setOpen(true);
           return;
         }
 
         const text = nearest.text.trim();
-        const ok = window.confirm(`OCR結果は「${text}」ですか？`);
-        alert(
-          ok ? "ありがとうございます！" : "別の領域をタップしてみてください。"
-        );
+        const building = findBuilding(text);
+
+        if (building) {
+          // ✅ 一致
+          setResult({
+            id: building.id,
+            text, // ← OCRの生文字
+            buildingName: building.name,
+          });
+          setType("findText");
+        } else {
+          // ❗ 不一致（テキストのみ）
+          setResult({
+            id: "", // 一致しないのでIDは空
+            text, // OCRの生文字は必ず渡す
+            buildingName: "", // 空
+          });
+          setType("textOnly"); // ← 新しい種別
+        }
+        console.log("OCR Result:", text, building);
+        setOpen(true);
+        return;
       } catch (err) {
-        console.error("[handleTap] error:", err);
-        alert("OCR 実行中にエラーが発生しました。");
+        setType("error");
+        setOpen(true);
       }
     },
     [recognizer]
   );
 
+  useEffect(() => {
+    startCamera();
+  }, [startCamera]);
+
   // --------------------------------------
   // ✅ JSX
   // --------------------------------------
   return (
-    <div className="w-full max-w-3xl mx-auto p-4">
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <h1 className="text-xl font-semibold">Out-Camera OCR</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={startCamera}
-            disabled={isStarting || isRunning}
-            className={`px-4 py-2 rounded ${
-              isStarting || isRunning
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            {isStarting ? "起動中..." : "カメラ開始"}
-          </button>
-          <button
-            onClick={stopCamera}
-            disabled={!isRunning}
-            className={`px-4 py-2 rounded ${
-              !isRunning
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-rose-600 text-white hover:bg-rose-700"
-            }`}
-          >
-            カメラ停止
-          </button>
-        </div>
-      </div>
+    <>
+      {/* <button
+        onClick={startCamera}
+        disabled={isStarting || isRunning}
+        className={`px-4 py-2 rounded ${
+          isStarting || isRunning
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-blue-600 text-white hover:bg-blue-700"
+        }`}
+      >
+        {isStarting ? "起動中..." : "カメラ開始"}
+      </button> */}
+      {/* <button
+        onClick={stopCamera}
+        disabled={!isRunning}
+        className={`px-4 py-2 rounded ${
+          !isRunning
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-rose-600 text-white hover:bg-rose-700"
+        }`}
+      >
+        カメラ停止
+      </button> */}
 
-      <div className="mb-3 text-sm text-gray-600">
+      {/* <div className="mb-3 text-sm text-gray-600">
         <div>Recognizer: {recognizer ? "✅ ready" : "⏳ loading..."}</div>
         <div>Camera: {isRunning ? "📷 起動中" : "⏸ 停止中"}</div>
-      </div>
-
+      </div> */}
       {stream ? (
         <WebGLCanvasCamera
           stream={stream}
-          width={500}
-          height={500}
+          width={vw_100}
+          height={vh_100}
           onTap={handleTap}
           className="w-full h-auto"
           reloadPos="top-right"
         />
       ) : (
         <div className="flex items-center justify-center h-48 text-gray-400">
-          カメラを開始してください
+          カメラを起動中です
         </div>
       )}
-
-      <div className="mt-4">
-        <details className="bg-gray-50 rounded-md p-3">
-          <summary className="cursor-pointer select-none">
-            デバッグ: 直近の OCR 結果
-          </summary>
-          <pre className="mt-2 text-xs whitespace-pre-wrap break-words">
-            {lastResult
-              ? JSON.stringify(lastResult, null, 2)
-              : "（まだありません）"}
-          </pre>
-        </details>
-      </div>
-    </div>
+      <OcrAlertDialog
+        result={result}
+        type={type}
+        open={open}
+        setOpen={setOpen}
+        onClose={() => setOpen(false)}
+        handleNavigation={(buildingId) => {
+          alert(`建物ID: ${buildingId} の建物へナビゲーションします`);
+          // nextjsのルーターなどで遷移処理を実装
+          // ここに取得処理を書く
+          router.push(`/map?id=${buildingId}`);
+        }}
+      />
+    </>
   );
 }
 
@@ -188,7 +212,6 @@ function CameraInner() {
  * ==========================================
  */
 export function CameraProvider() {
-
   const modelPaths = useMemo(
     () => ({
       det_model_path: "https://ocr-file-server.pages.dev/ppocrv5/det/det.ort",

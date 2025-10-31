@@ -5,6 +5,7 @@
       "id": "0",
       "name": "情報学部棟",
       "type": "building",
+      "ocrName": ["14号館", ""],
       "lat": 35.9435,
       "lng": 139.6421,
       "description": "情報学部のメインキャンパスです。"
