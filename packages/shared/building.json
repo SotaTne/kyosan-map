@@ -2,13 +2,41 @@
   "$schema": "./schema.json",
   "data": [
     {
-      "id": "0",
+      "id": "building_2",
       "name": "情報学部棟",
       "type": "building",
       "ocrName": ["14号館", ""],
       "lat": 35.9435,
       "lng": 139.6421,
       "description": "情報学部のメインキャンパスです。"
+    },
+    {
+      "id": "building_1",
+      "name": "京都駅ビル",
+      "type": "building",
+      "lat": 35.069,
+      "lng": 135.758
+    },
+    {
+      "id": "shop_1",
+      "name": "お土産屋さん",
+      "type": "shop",
+      "lat": 35.0702,
+      "lng": 135.7592
+    },
+    {
+      "id": "food_1",
+      "name": "京料理 鴨川亭",
+      "type": "food",
+      "lat": 35.071,
+      "lng": 135.7568
+    },
+    {
+      "id": "tips_1",
+      "name": "観光案内所",
+      "type": "tips",
+      "lat": 35.0683,
+      "lng": 135.7574
     }
   ]
 }

@@ -1,18 +1,20 @@
-export interface Facility {
+export type FacilityType = "building" | "tips" | "shop" | "food";
+
+export type Facility = {
   /** 施設ID (ユニーク) */
   id: string;
 
   /** 施設名 */
   name: string;
 
-  /** OCR検出用施設名（これがないとOCR検出されない） */
-  ocrName?: string;
+  /** OCR検出用施設名（正規表現として扱われる） */
+  ocrName?: string[];
 
   /** 施設説明 */
   description?: string;
 
   /** 種類 */
-  type: "building" | "tips" | "shop" | "food";
+  type: FacilityType;
 
   /** 施設タグ */
   tags?: string[];
@@ -25,7 +27,7 @@ export interface Facility {
 
   /** 経度 (WGS84) */
   lng: number;
-}
+};
 
 export type PinCategory = "building" | "shop" | "food" | "tips";
 

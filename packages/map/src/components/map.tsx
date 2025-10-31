@@ -23,6 +23,8 @@ import { selectAdjustedCenter } from "../functions/map-utils";
 import { ViewPointState } from "../types/map-state-type";
 import { InnerMap } from "./inner-map";
 import { PeekDrawer } from "./maps/peekDrawer";
+import { SearchBar } from "./search/search-box";
+// import { SearchBox } from "./search/search-box";
 
 //import { InnerMap } from "./inner-map";
 // import { DrawerDemo } from "./maps/peekDrawer";
@@ -76,10 +78,17 @@ export function DeliverMap({
   const handleLoad = useCallback(
     (evt: MapLibreEvent) => {
       setOnLoaded(true);
-      if (!defaultFocus) return;
-      const focusPin = ALL_PINS.find((p) => p.id === defaultFocus);
-      if (!focusPin) return;
       const map = evt.target;
+
+      if (!defaultFocus) {
+        map.setCenter([DEFAULT_CENTER[0], DEFAULT_CENTER[1]]);
+        return;
+      }
+      const focusPin = ALL_PINS.find((p) => p.id === defaultFocus);
+      if (!focusPin) {
+        map.setCenter([DEFAULT_CENTER[0], DEFAULT_CENTER[1]]);
+        return;
+      }
       const pinCenter = { lng: focusPin.lng, lat: focusPin.lat };
       const adjustCenter = selectAdjustedCenter(
         map,
@@ -146,6 +155,7 @@ export function DeliverMap({
           }}
         />
       )}
+      {onLoaded && contextLoaded && <SearchBar />}
       <Map
         {...mapProps}
         ref={mapRef}
@@ -155,9 +165,11 @@ export function DeliverMap({
           handleMove(e);
         }}
       >
-        <AttributionControl position="top-right" compact />
         {onLoaded && contextLoaded && (
           <InnerMap mapViewPort={mapViewPort}>{children}</InnerMap>
+        )}
+        {onLoaded && contextLoaded && (
+          <AttributionControl position="top-right" compact />
         )}
       </Map>
     </MapNullableContextProvider>

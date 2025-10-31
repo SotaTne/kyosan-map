@@ -21,6 +21,10 @@ export function NormalCard({ facility, distance, handleClick }: CardProps) {
       className="rounded-xl"
       style={{ padding: 4, marginBottom: 8 }} // 外枠の余白を最小限に
       onClick={onCardClick}
+      onMouseDown={(e) => {
+        // クリック時にフォーカスを防ぐ
+        e.preventDefault();
+      }}
     >
       <CardContent
         className="px-2.5 py-2 sm:px-3 sm:py-2.5" // ← CardContent のデフォルト p-6 を上書き

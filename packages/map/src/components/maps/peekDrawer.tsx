@@ -2,7 +2,7 @@
 
 import { distanceMetersFloor } from "@kyosan-map/map/functions/map-utils";
 import { Root as VisualHiddenRoot } from "@radix-ui/react-visually-hidden";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Drawer } from "vaul";
 import { HEAD_PX } from "../../config";
 import { useMapContext } from "../../contexts/map-context";
@@ -142,6 +142,29 @@ export function PeekDrawer({
     }
   }, [snapPoints, setSnapPoint, state.uiVisible]);
 
+  // スナップポイント変更時のフォーカス移動を防ぐ
+  const handleSnapPointChange = useCallback(
+    (v: string | number | null) => {
+      // フォーカスを現在のアクティブ要素に保持
+      const activeElement = document.activeElement as HTMLElement;
+
+      if (v === snapPoints[0]) {
+        dispatch({ type: "SET_UI_VISIBLE", payload: false });
+      }
+      if (v === snapPoints[1]) {
+        dispatch({ type: "SET_UI_VISIBLE", payload: true });
+      }
+
+      // dispatchの直後にフォーカスを復元
+      requestAnimationFrame(() => {
+        if (activeElement && activeElement !== document.body) {
+          activeElement.focus();
+        }
+      });
+    },
+    [snapPoints, dispatch]
+  );
+
   return (
     <div>
       {/* container は常時描画して ref を確定 */}
@@ -160,14 +183,7 @@ export function PeekDrawer({
           noBodyStyles
           snapPoints={snapPoints}
           activeSnapPoint={snapPoint}
-          setActiveSnapPoint={(v) => {
-            if (v === snapPoints[0]) {
-              dispatch({ type: "SET_UI_VISIBLE", payload: false });
-            }
-            if (v === snapPoints[1]) {
-              dispatch({ type: "SET_UI_VISIBLE", payload: true });
-            }
-          }}
+          setActiveSnapPoint={handleSnapPointChange}
           snapToSequentialPoint
           defaultOpen
           fadeFromIndex={0}
@@ -189,6 +205,16 @@ export function PeekDrawer({
                 width: "100vw", // container 幅にフィット
                 zIndex: 100,
               }}
+              // フォーカストラップを無効化
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              // ポインターイベントをドロワー内のみに制限
+              onPointerDownOutside={(e) => e.preventDefault()}
+              onInteractOutside={(e) => e.preventDefault()}
+              onMouseDown={(e) => {
+                // ドラッグ時にフォーカスを防ぐ
+                e.preventDefault();
+              }}
             >
               <div
                 style={{
@@ -202,9 +228,14 @@ export function PeekDrawer({
                     width: "60px",
                     maxHeight: `${HEAD_PX}px`,
                     marginTop: "14px",
+                    marginBottom: "8px",
                     cursor: "grab",
                   }}
                   className="mx-auto mt-3 h-2 rounded-full bg-muted"
+                  onMouseDown={(e) => {
+                    // ドラッグ時にフォーカスを防ぐ
+                    e.preventDefault();
+                  }}
                 />
                 <CalmFilterToggleGroup />
 
