@@ -38,6 +38,10 @@ export function SelectCard({
       className="relative rounded-xl"
       style={{ padding: 4, marginBottom: 8 }}
       onClick={onCardClick}
+      onMouseDown={(e) => {
+        // クリック時にフォーカスを防ぐ
+        e.preventDefault();
+      }}
     >
       {/* バッテンを“枠上に半分出す”配置。Card 自体を基準にする */}
       <Button
@@ -53,6 +57,10 @@ export function SelectCard({
         }}
         onClick={onCloseClick}
         onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => {
+          // クリック時にフォーカスを防ぐ
+          e.preventDefault();
+        }}
       >
         <X className="h-3.5 w-3.5" aria-hidden />
       </Button>

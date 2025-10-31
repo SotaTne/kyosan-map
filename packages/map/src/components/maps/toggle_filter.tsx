@@ -67,7 +67,6 @@ export function CalmFilterToggleGroup({ value, onChange, className }: Props) {
       onValueChange={handleChange}
       className={`flex flex-wrap gap-2 ${className ?? ""}`}
       style={{
-        paddingTop: 12,
         paddingLeft: 8,
       }}
     >
@@ -102,6 +101,10 @@ export function CalmFilterToggleGroup({ value, onChange, className }: Props) {
             aria-label={f.label}
             className="inline-flex items-center"
             style={style}
+            onMouseDown={(e) => {
+              // クリック時にフォーカスを防ぐ
+              e.preventDefault();
+            }}
           >
             {f.label}
           </ToggleGroupItem>
