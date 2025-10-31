@@ -1,77 +1,65 @@
 "use client";
 
-import { AnimatePresence } from "framer-motion";
 import { Suspense, useState } from "react";
+import useSWR from "swr";
+import AudioBar from "./contents/_components/audio/AudioBar";
+import type { ViewItem } from "./contents/data/getCollectionForUser";
+import SectionImage from "./contents/sections/SectionImage";
+import SectionModel from "./contents/sections/SectionModel";
+import SectionMusic from "./contents/sections/SectionMusic";
+import ModelViewer from "./contents/three/ModelViewer";
+import ImagePullup from "./contents/ui/ImagePullup";
+import PopupContainer from "./contents/ui/PopupContainer";
 
-import { AudioPlayer } from "@/app/contents/_components/audio/AudioPlayer";
-import { imageMapping, listImage, listModel, listMusic } from "@/app/contents/_components/data/lists";
-import { SectionImage } from "@/app/contents/_components/sections/SectionImage";
-import { SectionModel } from "@/app/contents/_components/sections/SectionModel";
-import { SectionMusic } from "@/app/contents/_components/sections/SectionMusic";
-import { ModelViewer } from "@/app/contents/_components/three/ModelViewer";
-import { ImagePullup } from "@/app/contents/_components/ui/ImagePullup";
-import { PopupContainer } from "@/app/contents/_components/ui/PopupContainer";
+const fetcher = (u: string) => fetch(u).then((r) => r.json());
 
 export default function Page() {
-  const [selectedImg, setSelectedImg] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [currentTrack, setCurrentTrack] = useState<{
-    src: string;
-    title: string;
-  } | null>(null);
+  const { data } = useSWR<ViewItem[]>("/api/collection", fetcher);
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
+  const [previewModel, setPreviewModel] = useState<string | null>(null);
+  const [track, setTrack] = useState<{ url: string; title: string } | null>(null);
 
-  // A: 画像マッピング
-  const handleAItemClick = (src: string) => {
-    const mapped = imageMapping[src] || src;
-    setSelectedImg(mapped);
-  };
-
-  // B: 楽曲選択（再生は AudioPlayer に委譲）
-  const handleBItemClick = (song: string, title: string) =>
-    setCurrentTrack({ src: song, title });
-
-  // C: 3Dモデル選択
-  const handleCItemClick = (model: string) => setSelectedModel(model);
+  if (!data) return <div className="p-4">Loading...</div>;
+  const images = data.filter((x) => x.kind === "image");
+  const musics = data.filter((x) => x.kind === "audio");
+  const models = data.filter((x) => x.kind === "model");
 
   return (
-    <main className="min-h-screen bg-white p-4 pb-28">
+    <main className="p-4 pb-28">
       <h1 className="text-2xl font-bold text-center mb-6">コレクション</h1>
 
-      {/* === Aリスト === */}
-      <SectionImage title="イラスト" items={listImage} onClickItem={handleAItemClick} />
+      <SectionImage title="画像" items={images} onClick={(i) => setPreviewImg(i.displayUrl)} />
+      <Divider />
 
-      <div className="my-6 h-px w-full bg-gray-300/70" />
+      <SectionMusic title="音楽" items={musics} onClick={(i) => setTrack({ url: i.displayUrl, title: i.title })} />
+      <Divider />
 
-      {/* === Bリスト === */}
-      <SectionMusic title="ミュージック" items={listMusic} onClickItem={handleBItemClick} />
+      <SectionModel title="3Dモデル" items={models} onClick={(i) => setPreviewModel(i.displayUrl)} />
 
-      <div className="my-6 h-px w-full bg-gray-300/70" />
+      {/* 画像プルアップ（高さ0対策済み） */}
+      {previewImg && (
+        <PopupContainer onClose={() => setPreviewImg(null)}>
+          <ImagePullup src={previewImg} />
+        </PopupContainer>
+      )}
 
-      {/* === Cリスト === */}
-      <SectionModel title="3Dモデル" items={listModel} onClickItem={handleCItemClick} />
+      {/* 3Dモデル プルアップ */}
+      {previewModel && (
+        <PopupContainer onClose={() => setPreviewModel(null)}>
+          <div className="w-full h-80">
+            <Suspense fallback={<p>Loading model...</p>}>
+              <ModelViewer url={previewModel} />
+            </Suspense>
+          </div>
+        </PopupContainer>
+      )}
 
-      {/* === プルアップ: 画像 === */}
-      <AnimatePresence>
-        {selectedImg && (
-          <ImagePullup src={selectedImg} onClose={() => setSelectedImg(null)} />
-        )}
-      </AnimatePresence>
-
-      {/* === プルアップ: 3Dモデル === */}
-      <AnimatePresence>
-        {selectedModel && (
-          <PopupContainer onClose={() => setSelectedModel(null)}>
-            <div className="w-full h-80">
-              <Suspense fallback={<p className="text-center mt-4">Loading 3D Model...</p>}>
-                <ModelViewer modelPath={selectedModel} />
-              </Suspense>
-            </div>
-          </PopupContainer>
-        )}
-      </AnimatePresence>
-
-      {/* === 再生バー（現在のトラックがある時のみ表示） === */}
-      <AudioPlayer track={currentTrack} />
+      {/* 再生バー */}
+      {track && <AudioBar src={track.url} title={track.title} />}
     </main>
   );
+}
+
+function Divider() {
+  return <div className="my-6 h-px bg-gray-300/70" />;
 }
