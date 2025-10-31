@@ -102,6 +102,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@auth/drizzle-adapter':
+        specifier: ^1.11.0
+        version: 1.11.0
       '@kyosan-map/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -135,6 +138,9 @@ importers:
       next:
         specifier: 15.5.4
         version: 15.5.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next-auth:
+        specifier: 5.0.0-beta.30
+        version: 5.0.0-beta.30(next@15.5.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -144,6 +150,9 @@ importers:
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@19.2.0)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -3973,6 +3982,22 @@ packages:
       nodemailer:
         optional: true
 
+  next-auth@5.0.0-beta.30:
+    resolution: {integrity: sha512-+c51gquM3F6nMVmoAusRJ7RIoY0K4Ts9HCCwyy/BRoe4mp3msZpOzYMyb5LAYc1wSo74PMQkGDcaghIO7W6Xjg==}
+    peerDependencies:
+      '@simplewebauthn/browser': ^9.0.1
+      '@simplewebauthn/server': ^9.0.2
+      next: ^14.0.0-0 || ^15.0.0 || ^16.0.0
+      nodemailer: ^7.0.7
+      react: ^18.2.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@simplewebauthn/browser':
+        optional: true
+      '@simplewebauthn/server':
+        optional: true
+      nodemailer:
+        optional: true
+
   next-themes@0.4.6:
     resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
     peerDependencies:
@@ -4267,6 +4292,11 @@ packages:
     resolution: {integrity: sha512-UlbRu4cAiGaIewkPyiRGJk0imDN2T3JjieT6spoL2UeSf5od4n5LB/mQ4ejmxhCFT1tYe8IvaFulzynWovsEFQ==}
     peerDependencies:
       react: ^19.2.0
+
+  react-icons@5.5.0:
+    resolution: {integrity: sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==}
+    peerDependencies:
+      react: '*'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -8861,6 +8891,12 @@ snapshots:
       next: 15.5.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
 
+  next-auth@5.0.0-beta.30(next@15.5.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0):
+    dependencies:
+      '@auth/core': 0.41.0
+      next: 15.5.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react: 19.2.0
+
   next-themes@0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       react: 19.2.0
@@ -9264,6 +9300,10 @@ snapshots:
     dependencies:
       react: 19.2.0
       scheduler: 0.27.0
+
+  react-icons@5.5.0(react@19.2.0):
+    dependencies:
+      react: 19.2.0
 
   react-is@16.13.1: {}
 
