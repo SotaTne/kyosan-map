@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FOOTER_HEIGHT } from "../../config";
 
 export function Footer() {
@@ -15,22 +16,16 @@ export function Footer() {
     >
       <ul className="flex justify-around items-center h-full">
         <li>
-          <button
-            onClick={() => {
-              console.log("click");
-            }}
-          >
-            マップ
-          </button>
+          <Link href="/">マップ</Link>
         </li>
         <li>
-          <button>カメラ</button>
+          <Link href="/camera">カメラ</Link>
         </li>
         <li>
-          <button>コレクション</button>
+          <Link href="/contents">コレクション</Link>
         </li>
         <li>
-          <button>設定</button>
+          <Link href="/settings">設定</Link>
         </li>
       </ul>
     </footer>
