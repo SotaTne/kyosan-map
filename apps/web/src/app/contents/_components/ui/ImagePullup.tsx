@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-export default function ImagePullup({ src }: { src: string }) {
+export function ImagePullup({ src }: { src: string }) {
   const [ratio, setRatio] = useState(100);
 
   useEffect(() => {
@@ -21,7 +21,14 @@ export default function ImagePullup({ src }: { src: string }) {
       className="relative w-full mb-4 rounded-xl overflow-hidden max-h-[75vh] min-h-[200px]"
       style={{ paddingBottom: `${ratio}%` }}
     >
-      <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="100vw" priority />
+      <Image
+        src={src}
+        alt=""
+        fill
+        style={{ objectFit: "contain" }}
+        sizes="100vw"
+        priority
+      />
     </div>
   );
 }

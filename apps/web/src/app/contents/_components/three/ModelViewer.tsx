@@ -3,7 +3,7 @@
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 
-export default function ModelViewer({ url }: { url: string }) {
+export function ModelViewer({ url }: { url: string }) {
   const gltf = useGLTF(url);
   return (
     <Canvas camera={{ position: [0, 0, 2.5], fov: 50 }}>

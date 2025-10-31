@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { ViewItem } from "../data/getCollectionForUser";
 
-export default function SectionImage({
+export function SectionImage({
   title,
   items,
   onClick,
@@ -22,7 +22,12 @@ export default function SectionImage({
             onClick={() => onClick(it)}
             className="relative w-40 h-40 bg-black rounded-xl overflow-hidden"
           >
-            <Image src={it.thumbUrl} alt={it.title} fill style={{ objectFit: "cover" }} />
+            <Image
+              src={it.thumbUrl}
+              alt={it.title}
+              fill
+              style={{ objectFit: "cover" }}
+            />
             {!it.unlocked && (
               <span className="absolute inset-0 grid place-items-center bg-black/50 text-white text-sm">
                 LOCKED

@@ -1,17 +1,20 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import PopupContainer from "./_components/contents/ui/PopupContainer";
-import AudioBar from "./contents/_components/audio/AudioBar";
-import SectionImage from "./contents/sections/SectionImage";
-import SectionModel from "./contents/sections/SectionModel";
-import SectionMusic from "./contents/sections/SectionMusic";
-import ModelViewer from "./contents/three/ModelViewer";
-import ImagePullup from "./contents/ui/ImagePullup";
+import useSWR from "swr";
+import { AudioBar } from "./_components/audio/AudioBar";
+import type { ViewItem } from "./_components/data/getCollectionForUser";
+import { SectionImage } from "./_components/sections/SectionImage";
+import { SectionModel } from "./_components/sections/SectionModel";
+import { SectionMusic } from "./_components/sections/SectionMusic";
+import { ModelViewer } from "./_components/three/ModelViewer";
+import { ImagePullup } from "./_components/ui/ImagePullup";
+import { PopupContainer } from "./_components/ui/PopupContainer";
 
 const fetcher = (u: string) => fetch(u).then((r) => r.json());
 
 export default function Page() {
+  const { data } = useSWR<ViewItem[]>("/api/collection", fetcher);
   const [previewImg, setPreviewImg] = useState<string | null>(null);
   const [previewModel, setPreviewModel] = useState<string | null>(null);
   const [track, setTrack] = useState<{ url: string; title: string } | null>(

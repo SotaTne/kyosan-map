@@ -15,7 +15,8 @@ export function AudioPlayer({ track }: { track: Track }) {
     const audio = audioRef.current;
     if (!audio) return;
     const update = () => {
-      if (audio.duration) setProgress((audio.currentTime / audio.duration) * 100);
+      if (audio.duration)
+        setProgress((audio.currentTime / audio.duration) * 100);
     };
     audio.addEventListener("timeupdate", update);
     return () => audio.removeEventListener("timeupdate", update);
@@ -27,7 +28,10 @@ export function AudioPlayer({ track }: { track: Track }) {
     if (!audio) return;
     if (track) {
       audio.src = track.src;
-      audio.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
     } else {
       // トラックが無ければ停止＆非表示
       audio.pause();
@@ -58,13 +62,19 @@ export function AudioPlayer({ track }: { track: Track }) {
         exit={{ y: 80 }}
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
       >
-        <button onClick={togglePlay} className="p-2 rounded-full bg-gray-700 hover:bg-gray-600">
+        <button
+          onClick={togglePlay}
+          className="p-2 rounded-full bg-gray-700 hover:bg-gray-600"
+        >
           {isPlaying ? <Pause size={20} /> : <Play size={20} />}
         </button>
         <div className="flex flex-col flex-1">
           <span className="text-sm font-medium truncate">{track.title}</span>
           <div className="w-full h-1 bg-gray-600 rounded mt-1">
-            <div className="h-1 bg-green-400 rounded" style={{ width: `${progress}%` }} />
+            <div
+              className="h-1 bg-green-400 rounded"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
       </motion.div>

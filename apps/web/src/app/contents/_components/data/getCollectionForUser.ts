@@ -1,7 +1,7 @@
 "use server";
 
-import { db } from "@repo/db"; // ← プロジェクトのクライアントに合わせて変更
-import { collectionItems, items } from "@repo/db/src/db/schema"; // ←パス調整
+import { db } from "@kyosan-map/db"; // ← プロジェクトのクライアントに合わせて変更
+import { collectionItems, items } from "@kyosan-map/db/db/schema"; // ←パス調整
 import { and, eq } from "drizzle-orm";
 import { CONTENTS, Kind } from "./contentMap";
 
@@ -14,7 +14,9 @@ export type ViewItem = {
   displayUrl: string; // 未解放は /dummy.png
 };
 
-export async function getCollectionForUser(userId: string): Promise<ViewItem[]> {
+export async function getCollectionForUser(
+  userId: string
+): Promise<ViewItem[]> {
   const rows = await db
     .select({
       itemId: items.id,
@@ -24,7 +26,10 @@ export async function getCollectionForUser(userId: string): Promise<ViewItem[]> 
     .from(items)
     .leftJoin(
       collectionItems,
-      and(eq(collectionItems.itemId, items.id), eq(collectionItems.userId, userId))
+      and(
+        eq(collectionItems.itemId, items.id),
+        eq(collectionItems.userId, userId)
+      )
     );
 
   return rows
@@ -43,4 +48,3 @@ export async function getCollectionForUser(userId: string): Promise<ViewItem[]> 
     })
     .filter(Boolean) as ViewItem[];
 }
-
