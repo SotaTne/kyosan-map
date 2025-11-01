@@ -1,5 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogOverlay,
+} from "@kyosan-map/ui/components/dialog";
+
 export function PopupContainer({
   children,
   onClose,
@@ -7,23 +14,29 @@ export function PopupContainer({
   children: React.ReactNode;
   onClose: () => void;
 }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(true);
+  }, []);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setOpen(false);
+      setTimeout(onClose, 200);
+    }
+  };
+
   return (
-    <div
-      className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white w-full max-w-md rounded-t-2xl p-4"
-        onClick={(e) => e.stopPropagation()}
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent 
+        className="max-w-[95vw] max-h-[90vh] p-0 overflow-hidden"
+        showCloseButton={true}
       >
-        {children}
-        <button
-          className="w-full mt-4 py-2 bg-gray-800 text-white rounded-lg"
-          onClick={onClose}
-        >
-          閉じる
-        </button>
-      </div>
-    </div>
+        <div className="overflow-auto max-h-[90vh] p-6">
+          {children}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

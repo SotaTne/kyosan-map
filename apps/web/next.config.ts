@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   experimental: {
     useCache: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "kyosanmap-contents-server.pages.dev",
+      },
+    ],
+  },
   serverExternalPackages: ["@libsql/client/web"],
 };
 
