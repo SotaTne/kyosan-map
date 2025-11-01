@@ -3,8 +3,8 @@
 import { db } from "@kyosan-map/db"; // ← プロジェクトのクライアントに合わせて変更
 import { collectionItems, items } from "@kyosan-map/db/db/schema"; // ←パス調整
 import { and, eq } from "drizzle-orm";
-import { getContentById } from "../../contents/contents";
-import { UserViewFlag } from "../../contents/type";
+import { getContentById } from "../../../contents";
+import { UserViewFlag } from "../../../type";
 
 export async function getCollectionForUser(
   userId: string

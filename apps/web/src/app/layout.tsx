@@ -1,3 +1,4 @@
+import { Toaster } from "@kyosan-map/ui/components/sonner";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "@kyosan-map/ui/globals.css";
@@ -24,6 +25,7 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
       >
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

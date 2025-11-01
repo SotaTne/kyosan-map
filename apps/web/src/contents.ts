@@ -1,6 +1,6 @@
 // コンテンツのすべてのデータをここに置く
 
-import { CONTENTS_BASE_PATH } from "../../../config";
+import { CONTENTS_BASE_PATH } from "./config";
 import { AudioContents, Contents, ImageContents, ModelContents } from "./type";
 
 // 画像コンテンツ (星座イラスト)

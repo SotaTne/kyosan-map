@@ -1,14 +1,14 @@
 "use client";
 
 import { Suspense, useMemo, useState } from "react";
-import { FOOTER_HEIGHT } from "../../../../config";
+import { FOOTER_HEIGHT } from "../../../config";
 import {
   AUDIO_CONTENTS,
   getContentsFullUrl,
   IMAGE_CONTENTS,
   MODEL_CONTENTS,
-} from "../contents";
-import { UserViewFlag } from "../type";
+} from "../../../contents";
+import { UserViewFlag } from "../../../type";
 import { AudioBar } from "./audio/AudioBar";
 import { SectionAudio } from "./sections/SectionAudio";
 import { SectionImage } from "./sections/SectionImage";

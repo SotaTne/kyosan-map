@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { getContentsFullUrl } from "../../contents";
-import { AudioContents, UserViewFlag } from "../../type";
+import { getContentsFullUrl } from "../../../../contents";
+import { AudioContents, UserViewFlag } from "../../../../type";
 
 export function SectionAudio({
   audioAllItems,

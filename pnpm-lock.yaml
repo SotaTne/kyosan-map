@@ -117,6 +117,9 @@ importers:
       '@kyosan-map/out-camera':
         specifier: workspace:*
         version: link:../../packages/out-camera
+      '@kyosan-map/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@kyosan-map/ui':
         specifier: workspace:*
         version: link:../../packages/ui

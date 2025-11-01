@@ -108,16 +108,16 @@ export function CameraProvider() {
     <ImageActionProvider
       modelPaths={OCR_MODEL_PATHS}
       onnx_wasm_path={ONNX_WASM_PATH}
-      loadingComponent={
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4" />
-            <div className="text-gray-700">
-              OCR を初期化中です…（初回のみ時間がかかります）
-            </div>
-          </div>
-        </div>
-      }
+      // loadingComponent={
+      //   <div className="flex items-center justify-center min-h-[60vh]">
+      //     <div className="text-center">
+      //       <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4" />
+      //       <div className="text-gray-700">
+      //         OCR を初期化中です…（初回のみ時間がかかります）
+      //       </div>
+      //     </div>
+      //   </div>
+      // }
       errorComponent={(error) => (
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="max-w-md p-4 bg-white rounded-lg shadow border">

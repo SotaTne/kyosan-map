@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { getContentsFullUrl } from "../../contents";
-import { ImageContents, UserViewFlag } from "../../type";
+import { getContentsFullUrl } from "../../../../contents";
+import { ImageContents, UserViewFlag } from "../../../../type";
 
 export function SectionImage({
   imageAllItems,

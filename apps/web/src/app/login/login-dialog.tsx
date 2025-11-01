@@ -9,7 +9,7 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@kyosan-map/ui/components/dialog";
-import { FOOTER_HEIGHT } from "../../../config";
+import { FOOTER_HEIGHT } from "../../config";
 import { SignIn } from "./login-button";
 
 type Props = {

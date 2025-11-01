@@ -27,6 +27,9 @@ export type Facility = {
 
   /** 経度 (WGS84) */
   lng: number;
+
+  /** 付随するコンテンツのid */
+  contentsId?: string;
 };
 
 export type PinCategory = "building" | "shop" | "food" | "tips";

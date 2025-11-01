@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FOOTER_HEIGHT } from "../../config";
+import { FOOTER_HEIGHT } from "../config";
 
 export function Footer() {
   return (

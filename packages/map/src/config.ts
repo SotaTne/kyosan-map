@@ -1,6 +1,8 @@
-import { data } from "@kyosan-map/shared/building.json" assert { type: "json" };
+import rawBuildings from "@kyosan-map/shared/building.json" assert { type: "json" };
 import { Building2, Coffee, Lightbulb, ShoppingBag } from "lucide-react";
 import { Facility, PinCategory } from "./types/map-type";
+
+const data: Facility[] = rawBuildings.data as Facility[];
 
 export const KYOTO_BOUNDS: [number, number, number, number] = [
   135.7541779, 35.0652063, 135.7600528, 35.0728644,

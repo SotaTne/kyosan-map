@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { getContentsFullUrl } from "../../contents";
-import { ModelContents, UserViewFlag } from "../../type";
+import { getContentsFullUrl } from "../../../../contents";
+import { ModelContents, UserViewFlag } from "../../../../type";
 
 export function SectionModel({
   modelAllItems,
@@ -15,7 +15,9 @@ export function SectionModel({
 }) {
   return (
     <section className="px-4 py-6">
-      <h2 className="text-lg font-semibold text-center mb-6 text-muted-foreground">CG</h2>
+      <h2 className="text-lg font-semibold text-center mb-6 text-muted-foreground">
+        CG
+      </h2>
       <div className="grid grid-cols-3 gap-3 max-w-2xl mx-auto">
         {modelAllItems.map((it) => {
           const flag = userItemFlags.find((f) => f.contentsId === it.id);
