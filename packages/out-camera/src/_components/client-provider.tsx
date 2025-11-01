@@ -130,7 +130,7 @@ export function ClientImageProvider({
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-lg font-medium text-gray-700">{loadingState}</p>
           <p className="text-sm text-gray-500 mt-2">
-            初回読み込みには時間がかかる場合があります
+            初回読み込みには時間がかかる場合があります。2回目の読み込みで15秒以上の場合は、お手数ですがページのリロードをお試しください。
           </p>
         </div>
       </div>

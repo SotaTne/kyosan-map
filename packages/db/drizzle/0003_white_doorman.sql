@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `user_item_unique` ON `collection_item` (`userId`,`itemId`);
