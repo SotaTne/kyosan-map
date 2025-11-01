@@ -6,7 +6,7 @@
       "name": "情報学部棟",
       "type": "building",
       "ocrName": ["14号館", "/^14\\d{3}$/"],
-      "contentsId": "song1",
+      "contentsId": "maturi",
       "lat": 35.9435,
       "lng": 139.6421,
       "description": "情報学部のメインキャンパスです。"
@@ -18,7 +18,7 @@
       "ocrName": ["/^T\\d{3}$/", "/^天地[館馆]$/"],
       "lat": 35.071503,
       "lng": 135.758148,
-      "contentsId": "song2",
+      "contentsId": "seiza",
       "description": "コンビニや文房具店があります。"
     },
     {
@@ -28,7 +28,7 @@
       "ocrName": ["/10\\d{3}$/"],
       "lat": 35.070832,
       "lng": 135.758277,
-      "contentsId": "model1",
+      "contentsId": "hutagoza",
       "description": "情報処理教室や教学センターがあります。"
     },
     {
@@ -38,7 +38,7 @@
       "ocrName": ["/^S\\d{3}$/", "/~サギタリウス[館馆]$/"],
       "lat": 35.069801,
       "lng": 135.758336,
-      "contentsId": "image3",
+      "contentsId": "sasoriza",
       "description": "外国語学部と現代社会学部のメインキャンパスです"
     },
     {
@@ -48,6 +48,7 @@
       "ocrName": ["雄飛館[館馆]$/"],
       "lat": 35.069753,
       "lng": 135.758947,
+      "contentsId": "otomeza",
       "description": "むすびキッチン(食堂)や自習スペース、本屋があります。"
     },
     {
@@ -57,7 +58,7 @@
       "ocrName": ["/^真理[館馆]$/", "/^S\\d{3}$/"],
       "lat": 35.06938,
       "lng": 135.758636,
-      "contentsId": "image2",
+      "contentsId": "kaniza",
       "description": "国際関係学部と法学部のメインキャンパスです。１階には飲食店も並んでいます。"
     },
     {
@@ -65,7 +66,7 @@
       "name": "12号館",
       "type": "building",
       "ocrName": ["/^12\\d{3}$/", "/^12号[館馆]$/"],
-      "contentsId": "model2",
+      "contentsId": "yagiza",
       "lat": 35.06952,
       "lng": 135.758137,
       "description": "さまざまな学部の授業や共通教育科目を学ぶ場所です。"
@@ -77,7 +78,7 @@
       "ocrName": ["/^平楽[館馆]$/"],
       "lat": 35.069415,
       "lng": 135.757273,
-      "contentsId": "image6",
+      "contentsId": "uosza",
       "description": "さまざまな飲食店が並んでいるほかコンビニも設置されています"
     },
     {
@@ -87,7 +88,7 @@
       "ocrName": ["/^6\\d{3}$/", "/^6号[館馆]$/"],
       "lat": 35.06888,
       "lng": 135.757381,
-      "contentsId": "image4",
+      "contentsId": "oushiza",
       "description": "とても広い講義室が複数あります。平楽館とは連絡橋を使えばすぐに行けます。"
     },
     {
@@ -115,7 +116,7 @@
       "ocrName": ["/^中央図書[館馆]$/"],
       "lat": 35.070224,
       "lng": 135.756175,
-      "contentsId": "image5",
+      "contentsId": "ohituziza",
       "description": "膨大な量の図書を閲覧できる図書館です。地下にも大量の書物が蔵書されています。"
     },
     {
@@ -152,6 +153,55 @@
       "lat": 35.06965,
       "lng": 135.755585,
       "ocrName": ["/^15\\d{3}$/", "/^15号[館馆]$/"]
+    },
+    {
+      "id": "shop_1",
+      "name": "ファミリーマート天地館",
+      "type": "shop",
+      "lat": 35.071552,
+      "lng": 135.758227
+    },
+    {
+      "id": "shop_2",
+      "name": "ファミリーマート平楽館",
+      "type": "building",
+      "lat": 35.069310,
+      "lng": 135.757357
+    },
+    {
+      "id": "food_1",
+      "name": "結びキッチン",
+      "type": "food",
+      "lat": 35.069714,
+      "lng": 135.758912
+    },
+    {
+      "id": "food_2",
+      "name": "壱馬力",
+      "type": "food",
+      "lat": 35.069538,
+      "lng": 135.757314
+    },
+    {
+      "id": "food_3",
+      "name": "すき家",
+      "type": "food",
+      "lat": 35.069380,
+      "lng": 135.758631
+    },
+    {
+      "id": "food_4",
+      "name": "キッチンサン",
+      "type": "food",
+      "lat": 35.069328,
+      "lng": 135.758480
+    },
+    {
+      "id": "food_5",
+      "name": "神座",
+      "type": "food",
+      "lat": 35.069310,
+      "lng": 135.758416
     }
   ]
 }
