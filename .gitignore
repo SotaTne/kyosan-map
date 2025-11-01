@@ -34,9 +34,6 @@ npm-debug.log*
 # Misc
 .DS_Store
 *.pem
-apps/web/public/images/
-apps/web/public/images/
-apps/web/public/images/
 
 .serena/
 

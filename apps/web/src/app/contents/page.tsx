@@ -1,8 +1,9 @@
 // import useSWR from "swr";
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { googleLoginAction } from "../login/actions";
 import { LoginDialog } from "../login/login-dialog";
-import { Contents } from "./_components/contents";
+import { ContentsViewer } from "./_components/contents-viewr";
+import { UserViewFlag } from "./type";
 
 export default async function Page() {
   // //const { data } = useSWR<ViewItem[]>("/api/collection", fetcher);
@@ -19,12 +20,25 @@ export default async function Page() {
   const result = await auth();
   const user = result?.user;
 
-  console.log("user:", user);
+  // const flags = user && user.id ? await getCollectionForUser(user.id) : [];
+
+  // mock flags (テスト用：ログインしている場合のみ一部コンテンツを解放)
+  const flags: UserViewFlag[] =
+    user && user.id
+      ? [
+          { contentsId: "ohituziza", unlocked: true },
+          { contentsId: "maturi", unlocked: true },
+          { contentsId: "hutagoza", unlocked: true },
+        ]
+      : [];
 
   return (
     <main>
-      <LoginDialog open={!user} googleLoginAction={googleLoginAction} />
-      <Contents />
+      <LoginDialog
+        open={!user || !user.id}
+        googleLoginAction={googleLoginAction}
+      />
+      <ContentsViewer flags={flags} />
     </main>
   );
 }

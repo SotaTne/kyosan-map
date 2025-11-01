@@ -78,6 +78,33 @@
         "required": ["id", "name", "type", "lat", "lng"],
         "additionalProperties": false
       }
+    },
+    "contents":{
+      "type": "array",
+      "items":{
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "コンテンツID (ユニーク)"
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["image", "model", "audio"],
+            "description": "コンテンツ種類"
+          },
+          "name": {
+            "type": "string",
+            "description": "コンテンツ名"
+          },
+          "filename":{
+            "type": "string",
+            "description": "コンテンツファイル名 これがほぼURL"
+          }
+        },
+        "required": ["id", "kind", "name", "filename"],
+        "additionalProperties": false
+      }
     }
   },
 
