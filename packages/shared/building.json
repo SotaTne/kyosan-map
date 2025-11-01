@@ -45,7 +45,7 @@
       "id": "building_7",
       "name": "雄飛館",
       "type": "building",
-      "ocrName": ["雄飛館[館馆]$/"],
+      "ocrName": ["雄飛[館馆]$/"],
       "lat": 35.069753,
       "lng": 135.758947,
       "contentsId": "otomeza",
