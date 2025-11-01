@@ -1,6 +1,12 @@
-import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
-import type { AdapterAccountType } from "next-auth/adapters"
- 
+import {
+  integer,
+  primaryKey,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
+import type { AdapterAccountType } from "next-auth/adapters";
+
 export const users = sqliteTable("user", {
   id: text("id")
     .primaryKey()
@@ -9,8 +15,8 @@ export const users = sqliteTable("user", {
   email: text("email").unique(),
   emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
   image: text("image"),
-})
- 
+});
+
 export const accounts = sqliteTable(
   "account",
   {
@@ -33,16 +39,16 @@ export const accounts = sqliteTable(
       columns: [account.provider, account.providerAccountId],
     }),
   ]
-)
- 
+);
+
 export const sessions = sqliteTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
-})
- 
+});
+
 export const verificationTokens = sqliteTable(
   "verificationToken",
   {
@@ -55,8 +61,8 @@ export const verificationTokens = sqliteTable(
       columns: [verificationToken.identifier, verificationToken.token],
     }),
   ]
-)
- 
+);
+
 export const authenticators = sqliteTable(
   "authenticator",
   {
@@ -78,13 +84,23 @@ export const authenticators = sqliteTable(
       columns: [authenticator.userId, authenticator.credentialID],
     }),
   ]
-)
+);
 
-export const collectionItems = sqliteTable("collection_item", {
-  id: text("id").notNull().primaryKey(),
-  userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  itemId: text("itemId").notNull().references(() => items.id, { onDelete: "cascade" }),
-})
+export const collectionItems = sqliteTable(
+  "collection_item",
+  {
+    id: text("id").notNull().primaryKey(),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    itemId: text("itemId")
+      .notNull()
+      .references(() => items.id, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    uniq: uniqueIndex("user_item_unique").on(t.userId, t.itemId),
+  })
+);
 
 export const items = sqliteTable("item", {
   id: text("id").notNull().primaryKey(),
@@ -92,4 +108,4 @@ export const items = sqliteTable("item", {
   // name: text("name").notNull(),
   // description: text("description"),
   // imageUrl: text("imageUrl"),
-})
+});

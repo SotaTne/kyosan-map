@@ -22,6 +22,13 @@
       "when": 1760607894292,
       "tag": "0002_dashing_sally_floyd",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1761961062967,
+      "tag": "0003_white_doorman",
+      "breakpoints": true
     }
   ]
 }

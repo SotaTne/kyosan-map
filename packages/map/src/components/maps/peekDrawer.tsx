@@ -242,6 +242,9 @@ export function PeekDrawer({
                 {/* 見出し（スクリーンリーダー用なら sr-only） */}
                 <VisualHiddenRoot>
                   <Drawer.Title className="sr-only">Peek Drawer</Drawer.Title>
+                  <Drawer.Description className="sr-only">
+                    近くの施設一覧や選択中の施設情報を表示します
+                  </Drawer.Description>
                 </VisualHiddenRoot>
               </div>
 
