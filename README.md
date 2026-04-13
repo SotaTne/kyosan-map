@@ -3,6 +3,9 @@
 `kyosan-map` は、地図・カメラ OCR・コンテンツ収集を組み合わせた体験型の Web アプリケーションです。  
 キャンパス内の施設を地図上で探索し、カメラで施設名を認識し、対応するコンテンツを解放してコレクションとして閲覧できます。
 
+地図表示には `MapLibre` を採用し、`style.json` とベクタータイル配信を分離した構成を取っています。  
+Google Maps API の従量課金モデルに依存せず、Cloudflare Pages を使って地図タイル、OCR 資産、コンテンツ資産を分離配信している点が特徴です。
+
 ## Demo
 
 動画やスクリーンショットを入れる前提のセクションです。  
@@ -18,7 +21,7 @@
 [Demo video](docs/videos/demo.mp4)
 ```
 
-## What It Does
+## Overview
 
 - MapLibre ベースの地図 UI で施設を表示
 - 施設名やタグで施設を検索
@@ -26,6 +29,13 @@
 - OCR 結果から施設を特定し、対応コンテンツを解放
 - 解放済みコンテンツを画像・音声・3D モデルとして閲覧
 - Google ログインと Turso/libsql を使ったユーザー別コレクション管理
+
+## Characteristics
+
+- `MapLibre` を使い、`style.json` とベクタータイル配信を前提にした地図体験を構成している
+- Google Maps API の従量課金モデルに依存せず、Cloudflare Pages を使った低コストな配信構成を採用している
+- OCR をブラウザ内で実行し、施設認識からコンテンツ解放までを一つの導線として統合している
+- 地図、OCR、認証、ユーザー別コレクション管理を一つのプロダクトとして接続している
 
 ## Product Flow
 
@@ -40,6 +50,8 @@
 ### 1. Interactive Map
 
 - MapLibre を使った施設マップ
+- `style.json` を前提にした独自スタイルの地図表示
+- ベクタータイル配信を前提にした構成
 - ピンのカテゴリ分け表示
 - 検索バーによる施設検索
 - drawer UI を使った施設一覧・詳細導線
@@ -89,8 +101,6 @@ kyosan-map/
 
 このリポジトリは単体では完結せず、関連プロジェクトと組み合わせて動作します。
 
-- [kyosan-map](https://github.com/SotaTne/kyosan-map)
-  - このアプリ本体
 - [map-tile-server](https://github.com/SotaTne/map-tile-server)
   - 地図タイルを生成・配信するリポジトリ
 - [maplibre-local-viewer](https://github.com/SotaTne/maplibre-local-viewer)
@@ -113,6 +123,17 @@ kyosan-map/
 - Contents assets:
   - `https://kyosanmap-contents-server.pages.dev/`
 
+## Cost / Deployment Design
+
+このプロジェクトでは、地図部分も含めて Cloudflare Pages を中心に静的配信できるように構成しています。
+
+- 地図タイルと `style.json` を Pages で配信
+- OCR モデルや wasm も Pages で配信
+- 画像・音声・3D モデルも Pages で配信
+
+この構成により、Google Maps API のような従量課金型の地図表示基盤に依存せず、低コストで運用しやすい構成を取っています。  
+特に、MapLibre と Cloudflare Pages を組み合わせて地図配信を成立させている点は、このプロダクトの重要な特徴です。
+
 ## Local Development
 
 ### Requirements
@@ -121,6 +142,7 @@ kyosan-map/
 - pnpm 10+
 - Turso/libsql 接続情報
 - Google OAuth 設定
+- `.env` に必要な認証・DB 接続情報
 
 ### Install
 
@@ -180,16 +202,3 @@ pnpm --filter @kyosan-map/db db:seed
 - `packages/map`, `packages/out-camera`, `packages/db`, `packages/shared` の役割
 - OCR からコンテンツ解放までのデータフロー
 - 外部プロジェクトとの接続点
-
-## Why This Project Matters
-
-このプロジェクトは、単なる地図表示アプリではなく、
-
-- 地図 UI
-- ブラウザ OCR
-- 認証
-- DB を使ったユーザー別状態管理
-- 外部配信アセットとの連携
-
-を一つの体験として統合している点に価値があります。  
-フロントエンド、WebRTC/MediaDevices、OCR 推論、データ設計、配信設計を横断して扱っているプロジェクトです。
