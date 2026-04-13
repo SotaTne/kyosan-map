@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
     "@kyosan-map/db",
     "@kyosan-map/map",
   ],
-  cacheComponents: true,
   images: {
     remotePatterns: [
       {
