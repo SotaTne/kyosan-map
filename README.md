@@ -1,31 +1,195 @@
-# shadcn/ui monorepo template
+# kyosan-map
 
-This template is for creating a monorepo with shadcn/ui.
+`kyosan-map` は、地図・カメラ OCR・コンテンツ収集を組み合わせた体験型の Web アプリケーションです。  
+キャンパス内の施設を地図上で探索し、カメラで施設名を認識し、対応するコンテンツを解放してコレクションとして閲覧できます。
 
-## Usage
+## Demo
+
+動画やスクリーンショットを入れる前提のセクションです。  
+差し替え時は `docs/images/` などを切って、このまま置き換える想定です。
+
+```md
+![Top map screen](docs/images/top-map.png)
+![Camera OCR flow](docs/images/camera-ocr.png)
+![Unlocked contents collection](docs/images/contents-collection.png)
+```
+
+```md
+[Demo video](docs/videos/demo.mp4)
+```
+
+## What It Does
+
+- MapLibre ベースの地図 UI で施設を表示
+- 施設名やタグで施設を検索
+- モバイルカメラで施設名を OCR 認識
+- OCR 結果から施設を特定し、対応コンテンツを解放
+- 解放済みコンテンツを画像・音声・3D モデルとして閲覧
+- Google ログインと Turso/libsql を使ったユーザー別コレクション管理
+
+## Product Flow
+
+1. 地図画面で施設を探す
+2. カメラ画面で施設名を読み取る
+3. OCR 結果から施設を特定する
+4. 施設に紐づくコンテンツを解放する
+5. コレクション画面で解放済みコンテンツを閲覧する
+
+## Main Features
+
+### 1. Interactive Map
+
+- MapLibre を使った施設マップ
+- ピンのカテゴリ分け表示
+- 検索バーによる施設検索
+- drawer UI を使った施設一覧・詳細導線
+
+### 2. Camera OCR
+
+- モバイルカメラから映像を取得
+- `onnx-ocr-js` + `onnxruntime-web` + OpenCV.js によるブラウザ OCR
+- タップした位置に最も近い OCR 結果を採用
+- OCR 結果を施設マスタと照合して施設を特定
+
+### 3. Unlockable Contents
+
+- 施設ごとにコンテンツ ID を紐付け
+- スキャン成功時にコンテンツを解放
+- 解放状況をユーザー単位で保持
+- 画像・音声・3D モデルをコレクション画面で閲覧
+
+## Tech Stack
+
+- Frontend: Next.js 15, React 19, TypeScript
+- Map: MapLibre GL, react-map-gl
+- OCR: `onnx-ocr-js`, `onnxruntime-web`, OpenCV.js
+- UI: Tailwind CSS, Radix UI, shadcn/ui ベース component
+- Auth: NextAuth v5 beta, Google Provider
+- Database: Turso / libsql, Drizzle ORM
+- Monorepo: pnpm workspace, Turbo
+- Asset Delivery: Cloudflare Pages
+
+## Repository Structure
+
+```text
+kyosan-map/
+├── apps/
+│   ├── web/         # 本番用 Next.js アプリ
+│   └── dev/         # package 単位の検証用アプリ
+├── packages/
+│   ├── map/         # 地図 UI と施設表示ロジック
+│   ├── out-camera/  # OCR・カメラ処理
+│   ├── db/          # DB スキーマと接続
+│   ├── shared/      # 施設マスタ JSON
+│   └── ui/          # 共通 UI コンポーネント
+└── ARCHITECTURE.md  # 詳細な内部構造メモ
+```
+
+## Related Projects
+
+このリポジトリは単体では完結せず、関連プロジェクトと組み合わせて動作します。
+
+- [kyosan-map](https://github.com/SotaTne/kyosan-map)
+  - このアプリ本体
+- [map-tile-server](https://github.com/SotaTne/map-tile-server)
+  - 地図タイルを生成・配信するリポジトリ
+- [maplibre-local-viewer](https://github.com/SotaTne/maplibre-local-viewer)
+  - 地図タイルや style をローカルで確認するビューア
+- [ocr-file-server](https://github.com/SotaTne/ocr-file-server)
+  - OCR モデル・辞書・ wasm を配信するリポジトリ
+- [kyosanmap-contents-server](https://github.com/SotaTne/kyosanmap-contents-server)
+  - 画像・音声・3D モデルなどの静的コンテンツを配信するリポジトリ
+- [OnnxOcrJs](https://github.com/SotaTne/OnnxOcrJs)
+  - ブラウザ OCR に使っている関連ライブラリ
+
+## External Runtime Dependencies
+
+アプリ実行時には以下の外部配信先を参照します。
+
+- Map style / tile:
+  - `https://map-tile-server.pages.dev/style.json`
+- OCR assets:
+  - `https://ocr-file-server.pages.dev/`
+- Contents assets:
+  - `https://kyosanmap-contents-server.pages.dev/`
+
+## Local Development
+
+### Requirements
+
+- Node.js 20+
+- pnpm 10+
+- Turso/libsql 接続情報
+- Google OAuth 設定
+
+### Install
 
 ```bash
-pnpm dlx shadcn@latest init
+pnpm install
 ```
 
-## Adding components
+### Run
 
-To add components to your app, run the following command at the root of your `web` app:
+本番アプリ:
 
 ```bash
-pnpm dlx shadcn@latest add button -c apps/web
+pnpm --filter web dev
 ```
 
-This will place the ui components in the `packages/ui/src/components` directory.
+検証用アプリ:
 
-## Tailwind
-
-Your `tailwind.config.ts` and `globals.css` are already set up to use the components from the `ui` package.
-
-## Using components
-
-To use the components in your app, import them from the `ui` package.
-
-```tsx
-import { Button } from "@kyosan-map/ui/components/button"
+```bash
+pnpm --filter dev dev
 ```
+
+monorepo 全体の開発起動:
+
+```bash
+pnpm dev
+```
+
+### Database
+
+必要な環境変数:
+
+- `TURSO_DATABASE_URL`
+- `TURSO_AUTH_TOKEN`
+
+代表的な DB コマンド:
+
+```bash
+pnpm --filter @kyosan-map/db db:generate
+pnpm --filter @kyosan-map/db db:migrate
+pnpm --filter @kyosan-map/db db:seed
+```
+
+## Environment Notes
+
+- 地図表示は外部の Cloudflare Pages 配信タイルに依存します
+- OCR は外部配信されるモデルと wasm に依存します
+- カメラ機能は端末ブラウザの権限と互換性に依存します
+- 認証には Google OAuth の設定が必要です
+
+## Architecture
+
+詳細な構造は [ARCHITECTURE.md](./ARCHITECTURE.md) にまとめています。  
+このドキュメントには以下を記載しています。
+
+- monorepo の責務分割
+- `apps/web` と `apps/dev` の違い
+- `packages/map`, `packages/out-camera`, `packages/db`, `packages/shared` の役割
+- OCR からコンテンツ解放までのデータフロー
+- 外部プロジェクトとの接続点
+
+## Why This Project Matters
+
+このプロジェクトは、単なる地図表示アプリではなく、
+
+- 地図 UI
+- ブラウザ OCR
+- 認証
+- DB を使ったユーザー別状態管理
+- 外部配信アセットとの連携
+
+を一つの体験として統合している点に価値があります。  
+フロントエンド、WebRTC/MediaDevices、OCR 推論、データ設計、配信設計を横断して扱っているプロジェクトです。
