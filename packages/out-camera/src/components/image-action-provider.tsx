@@ -13,7 +13,7 @@ export function ImageActionProvider({
   errorComponent,
 }: ClientImageProviderProps) {
   return (
-    <OpenCvProvider openCvVersion="4.12.0">
+    <OpenCvProvider openCvPath="/opencv/opencv.js">
       <ClientImageProvider
         modelPaths={modelPaths}
         onnx_wasm_path={onnx_wasm_path}
